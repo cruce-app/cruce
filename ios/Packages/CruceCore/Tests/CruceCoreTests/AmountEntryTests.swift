@@ -36,16 +36,16 @@ struct AmountEntryTests {
         #expect(AmountEntry.press(.delete, on: 0) == 0)
     }
 
-    @Test("Acepta hasta 12 dígitos, el mismo límite que la lectura de montos")
-    func capsAtTwelveDigits() {
-        let twelve = 999_999_999_999
-        #expect(AmountEntry.maxDigits == 12)
-        #expect(AmountEntry.press(.digit(9), on: 99_999_999_999) == twelve)
-        #expect(AmountEntry.press(.digit(5), on: twelve) == twelve)
-        // "000" no entra si pasaría de 12 dígitos: el monto queda igual.
-        #expect(AmountEntry.press(.tripleZero, on: 1_234_567_890) == 1_234_567_890)
-        #expect(AmountEntry.press(.tripleZero, on: 123_456_789) == 123_456_789_000)
-        #expect(Money.parse(digits: "1234567890123") == 123_456_789_012)
+    @Test("Acepta hasta 9 dígitos ($999.999.999), el mismo límite que la lectura de montos")
+    func capsAtNineDigits() {
+        let nine = 999_999_999
+        #expect(AmountEntry.maxDigits == 9)
+        #expect(AmountEntry.press(.digit(9), on: 99_999_999) == nine)
+        #expect(AmountEntry.press(.digit(5), on: nine) == nine)
+        // "000" no entra si pasaría de 9 dígitos: el monto queda igual.
+        #expect(AmountEntry.press(.tripleZero, on: 1_234_567) == 1_234_567)
+        #expect(AmountEntry.press(.tripleZero, on: 123_456) == 123_456_000)
+        #expect(Money.parse(digits: "1234567890") == 123_456_789)
     }
 
     @Test("Las teclas van en el orden del diseño")

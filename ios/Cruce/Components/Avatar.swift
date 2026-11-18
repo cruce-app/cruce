@@ -27,7 +27,17 @@ extension AvatarColor {
     }
 }
 
-/// Avatar circular con iniciales ("Jo", "Je"), con el color fijo de la persona.
+extension Member {
+    /// El color con que se pinta: el suyo, o gris (apagado) si borró su cuenta.
+    var displayColor: Color { isDeleted ? CruceColor.neutral : avatarColor.color }
+}
+
+extension ParcheParticipant {
+    /// El color con que se pinta en el parche: el suyo, o gris (apagado) si borró su cuenta.
+    var displayColor: Color { isDeletedAccount ? CruceColor.neutral : avatarColor.color }
+}
+
+/// Avatar circular con iniciales ("Jo", "Je"), con el color fijo de la persona (gris si borró su cuenta).
 struct Avatar: View {
     let member: Member
     var size: CGFloat = 44
@@ -39,7 +49,7 @@ struct Avatar: View {
             .font(.archivo(size * 0.36, .black))
             .foregroundStyle(CruceColor.ink)
             .frame(width: size, height: size)
-            .background(Circle().fill(member.avatarColor.color))
+            .background(Circle().fill(member.displayColor))
             .overlay(
                 Circle().strokeBorder(CruceColor.ink, lineWidth: size >= 40 ? BorderWidth.regular : BorderWidth.thin)
             )

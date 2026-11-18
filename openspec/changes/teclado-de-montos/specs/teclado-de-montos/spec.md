@@ -58,12 +58,12 @@ Tocar la tarjeta amarilla SHALL abrir el teclado de Cruce y cerrar el del sistem
 - **THEN** no queda ningún teclado abierto
 
 ### Requirement: Teclas y lectura del monto
-El teclado SHALL ignorar los ceros a la izquierda, aceptar como máximo 12 dígitos (como la lectura de montos) y no hacer nada si una tecla los superaría. Con VoiceOver, cada tecla MUST tener su etiqueta ("Borrar", "Tres ceros" o el dígito), la tarjeta MUST decir su monto y abrirse con la acción por defecto, y al tocar una tecla se MUST anunciar el monto nuevo, por ejemplo "Monto: 60000 pesos".
+El teclado SHALL ignorar los ceros a la izquierda, aceptar como máximo 9 dígitos, hasta $999.999.999 (como la lectura de montos) y no hacer nada si una tecla los superaría. Con VoiceOver, cada tecla MUST tener su etiqueta ("Borrar", "Tres ceros" o el dígito), la tarjeta MUST decir su monto y abrirse con la acción por defecto, y al tocar una tecla se MUST anunciar el monto nuevo, por ejemplo "Monto: 60000 pesos".
 
 #### Scenario: Seis y tres ceros
 - **WHEN** se toca "6" y luego "000"
 - **THEN** la tarjeta muestra `$6.000` y VoiceOver anuncia "Monto: 6000 pesos"
 
 #### Scenario: Límite de dígitos
-- **WHEN** ya hay 12 dígitos escritos y se toca "5"
+- **WHEN** ya hay 9 dígitos escritos y se toca "5"
 - **THEN** el monto no cambia

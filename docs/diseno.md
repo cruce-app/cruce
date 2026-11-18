@@ -124,5 +124,5 @@ Solo seis momentos suenan y vibran; el resto de la app es silencioso. Los sonido
 - **El monto principal** es la tarjeta amarilla de arriba (`MainAmountCard`, 46 pt) y se escribe con el teclado de Cruce (`AmountKeypad`: 1–9, `000`, 0 y borrar). El cursor solo se ve mientras está activo.
 - **El teclado va acoplado abajo** (`AmountEntryScreen` y `AmountKeypadDock`, en `Components/AmountEntry.swift`): una bandeja `CruceColor.line` con borde de tinta arriba (`BorderWidth.regular`), "Listo" arriba a la derecha y el botón principal de la pantalla siempre visible. El contenido hace scroll por encima.
 - **Los montos secundarios** (cada pagador, cada ítem, la propina) usan el teclado numérico del sistema.
-- **Hasta 12 dígitos** en todos los montos principales, igual que `Money.parse`.
+- **Hasta 9 dígitos** ($999.999.999) en todos los montos, con el teclado de Cruce y con el del sistema (`Money.maxDigits`).
 - **VoiceOver:** cada tecla tiene su nombre ("Borrar", "Tres ceros") y, después de cada tecla, se anuncia el monto ("Monto: 60000 pesos", que VoiceOver lee como "sesenta mil pesos").

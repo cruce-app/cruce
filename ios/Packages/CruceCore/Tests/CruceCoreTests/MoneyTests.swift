@@ -33,6 +33,8 @@ struct MoneyTests {
             ("60000", 60_000),
             ("", 0),
             ("$60.000", 60_000),
+            ("999999999", 999_999_999),
+            ("$1.000.000.000", 100_000_000),
         ])
     func parseDigits(digits: String, expected: Int) {
         #expect(Money.parse(digits: digits) == expected)
