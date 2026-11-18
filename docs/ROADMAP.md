@@ -19,7 +19,7 @@ Cada checkpoint se lleva como un cambio de OpenSpec en `openspec/changes/` (ver 
 - [x] **Intentos con códigos de parche:** *Decidido el 30 oct 2026 (cambio `usuarios-y-cuenta`): `join_parche` y `claim_parche_place` también cuentan los intentos fallidos, en el mismo límite de 5 por hora.*
 - [x] **Nombres repetidos:** *Decidido el 30 oct 2026 (cambio `usuarios-y-cuenta`): cada persona tiene un **@usuario único** (3 a 20 caracteres: minúsculas, números, `.` y `_`), que elige al registrarse y cambia en Tu perfil; se ve en la vista previa del código, en Tus cruces y en los parches. A los perfiles que ya existían se les asignó uno desde su nombre.*
 - [x] **Teclado de montos:** *Decidido el 30 oct 2026 (cambio `teclado-de-montos`): el monto principal se escribe con el teclado de Cruce, acoplado abajo en todas las pantallas; los montos secundarios, con el del sistema.*
-- [ ] **Cómo pagarle a cada quien (Nequi o llave):** los tickets no lo muestran porque el dato no existe. ¿Se guarda en el perfil y se muestra en el ticket?
+- [x] **Cómo pagarle a cada quien (Nequi o llave):** *Decidido el 18 nov 2026 (cambio `como-pagarme`): se guarda en el perfil y sale en el ticket. Cada quien elige Nequi o llave Bre-B en Tu perfil ("Cómo te pagan", opcional); lo ven su pareja de cruce y los del parche, sale en Saldar (cuando debes, con un botón para copiar), en "Para saldar" y en el ticket personal de quien debe. Llenarlo basta como permiso para los tickets ("Sí, basta"). Se borra con la lápida al borrar la cuenta.*
 
 ---
 
@@ -62,7 +62,7 @@ Joan los deja para cuando la app se abra a más personas:
 - [x] Probar `usuarios-y-cuenta` y `teclado-de-montos` en "Cruce Test" (18 nov 2026, sin errores): elegir y cambiar el @usuario, borrar una cuenta de prueba (también una que esté en un parche) y anotar montos con el teclado acoplado.
 - [x] Agregar las imágenes de `il-09` a `il-21` (PNG @2x y @3x), el 30 oct 2026.
 
-**Límites conocidos:** con una versión anterior de la app, lo que se pasa al cruce queda "por confirmar" hasta que alguien con la versión nueva lo acepte, y editar un gasto con ítems con nombre los guarda sin nombre. El enlace universal (`https://`) queda para el CP13. "Cómo pagarle a cada quien" e "Intentos con códigos de parche" están en las decisiones abiertas.
+**Límites conocidos:** con una versión anterior de la app, lo que se pasa al cruce queda "por confirmar" hasta que alguien con la versión nueva lo acepte, y editar un gasto con ítems con nombre los guarda sin nombre. El enlace universal (`https://`) queda para el CP13. "Cómo pagarle a cada quien" e "Intentos con códigos de parche" ya se decidieron (ver las decisiones).
 
 ## CP0 · Levantar el proyecto y compilar
 - [x] `git init`, primer commit con todo lo que hay.
