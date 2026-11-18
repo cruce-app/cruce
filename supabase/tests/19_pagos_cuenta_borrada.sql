@@ -71,7 +71,7 @@ select isnt(
 
 -- Los pagos confirmados cuentan en el saldo: Jesús ya no le debe a Joan lo que le pagó.
 select is(
-  (select coalesce(sum(amount), 0) from public.parche_payments
+  (select coalesce(sum(amount), 0)::bigint from public.parche_payments
     where parche_id = pg_temp.pid('parche') and to_id = pg_temp.pid('jo') and confirmed_at is not null),
   35000::bigint, 'Los dos pagos a la cuenta borrada cuentan en el saldo');
 
