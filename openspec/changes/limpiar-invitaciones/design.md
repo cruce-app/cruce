@@ -25,7 +25,7 @@ Lo que hay hoy (revisado en `supabase/migrations/`):
 ### 1. `pg_cron` en la base, no el backend de Go
 La limpieza es un `delete` sobre dos tablas; con `pg_cron` corre dentro de Postgres sin red, sin la llave `service_role` y sin depender de que la máquina de Fly.io esté prendida. Joan lo eligió así el 18 nov 2026.
 - Alternativa descartada: un `time.Ticker` en Go con la llave `service_role`. Agrega un secreto y un camino de red para algo que la base hace sola.
-- La extensión se crea como dice la guía de Supabase Cron (https://supabase.com/docs/guides/cron/install): `create extension pg_cron with schema pg_catalog`, con `if not exists` para que la migración no falle si ya se activó desde el panel.
+- La extensión se crea como dice la guía de Supabase Cron (https://supabase.com/docs/guides/cron/install): `create extension pg_cron with schema pg_catalog`, con `if not exists` para que la migración no falle si ya se activó desde el panel. Se omiten los dos `grant ... to postgres` de la guía: en Supabase el script que corre al crear la extensión ya se los da a `postgres`, y repetirlos deja permisos dependientes que hacen fallar un `create extension if not exists` posterior con "dependent privileges exist" (probado en local).
 
 ### 2. Una función interna que hace la limpieza
 `public.cleanup_expired_invites()` es `security definer` con `search_path = ''`, sin permiso de ejecución para `public`, `anon` ni `authenticated`. El trabajo de `pg_cron` solo la llama (`select public.cleanup_expired_invites()`), así que la regla vive en un lugar que se puede probar con pgTAP sin esperar al reloj.
