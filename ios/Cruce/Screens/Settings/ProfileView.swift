@@ -2,7 +2,8 @@ import CruceCore
 import SwiftUI
 
 /// Ajustes → la tarjeta del perfil: cambiar el nombre, el @usuario y el color propios. Los demás los ven cuando vuelven
-/// a cargar sus cruces y parches. El color es el mismo en todos los cruces y parches. Al final, "Borrar mi cuenta".
+/// a cargar sus cruces y parches. El color es el mismo en todos los cruces y parches. Después, "Cómo te pagan" (Nequi o
+/// llave Bre-B, opcional) y, al final, "Borrar mi cuenta".
 struct ProfileView: View {
     @Environment(SessionStore.self) private var session
     @Environment(LedgerStore.self) private var ledger
@@ -11,6 +12,8 @@ struct ProfileView: View {
     @State private var name = ""
     @State private var username = ""
     @State private var color: AvatarColor = .yellow
+    @State private var paymentKind: PaymentMethod.Kind = .nequi
+    @State private var paymentInput = ""
     @State private var failed = false
     @State private var confirmingDelete: Bool
     @State private var deleteFailed = false
@@ -34,7 +37,7 @@ struct ProfileView: View {
                 Text(session.isWorking ? "Guardando…" : "Guardar")
             }
             .buttonStyle(NeoButtonStyle(kind: .primary, height: 56, shadow: ShadowOffset.m))
-            .disabled(session.isWorking || trimmed.isEmpty || !hasChanges || !usernameReady)
+            .disabled(session.isWorking || trimmed.isEmpty || !hasChanges || !usernameReady || !paymentReady)
             .padding(.horizontal, Spacing.screen)
             .padding(.top, 8)
             .padding(.bottom, 16)
@@ -44,6 +47,8 @@ struct ProfileView: View {
             name = session.me.name
             username = session.me.username ?? ""
             color = session.me.avatarColor
+            paymentKind = session.me.paymentMethod?.kind ?? .nequi
+            paymentInput = session.me.paymentMethod?.displayHandle ?? ""
         }
         .overlay {
             if confirmingDelete {
@@ -91,6 +96,8 @@ struct ProfileView: View {
                 }
             }
 
+            paymentSection
+
             SettingsSection("TU CUENTA") {
                 SettingsActionRow("Borrar mi cuenta", systemImage: "person.crop.circle.badge.xmark") {
                     deleteFailed = false
@@ -135,12 +142,52 @@ struct ProfileView: View {
         .foregroundStyle(CruceColor.ink)
     }
 
+    /// "Cómo te pagan": Nequi o llave y el dato. Vacío, no se guarda nada.
+    private var paymentSection: some View {
+        FolderCard(tab: "CÓMO TE PAGAN", tabColor: CruceColor.lime, tabWidth: 150) {
+            VStack(alignment: .leading, spacing: 14) {
+                NeoSegmented(options: PaymentMethod.Kind.allCases, selection: $paymentKind, title: \.title, height: 40)
+                NeoTextField(
+                    label: paymentKind == .nequi ? "Tu número de Nequi" : "Tu llave Bre-B", text: $paymentInput,
+                    placeholder: paymentKind == .nequi ? "300 123 4567" : "Tu celular, correo o @llave",
+                    fill: CruceColor.cream
+                )
+                .keyboardType(paymentKind == .nequi ? .phonePad : .emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                if case .failure(let problem) = paymentDraft {
+                    ProblemText(problem: .invalidPaymentMethod(problem))
+                }
+                Text("Lo ven tus cruces y los del parche, y sale en los tickets.")
+                    .textStyle(.secondary)
+                    .foregroundStyle(CruceColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    /// Lo que quedaría guardado: `nil` si el campo está vacío, o el problema si no tiene el formato.
+    private var paymentDraft: Result<PaymentMethod?, PaymentMethodProblem> {
+        guard !paymentInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .success(nil) }
+        return PaymentMethod.make(kind: paymentKind, input: paymentInput).map { $0 }
+    }
+
+    private var paymentChanged: Bool {
+        guard case .success(let method) = paymentDraft else { return true }
+        return method != session.me.paymentMethod
+    }
+
+    private var paymentReady: Bool {
+        if case .failure = paymentDraft { return false }
+        return true
+    }
+
     private var trimmed: String {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var hasChanges: Bool {
-        trimmed != session.me.name || color != session.me.avatarColor || usernameChanged
+        trimmed != session.me.name || color != session.me.avatarColor || usernameChanged || paymentChanged
     }
 
     private var usernameChanged: Bool {
@@ -189,6 +236,13 @@ struct ProfileView: View {
             }
             await parches.load()
         }
+        if paymentChanged {
+            guard await session.updatePaymentMethod(kind: paymentKind, input: paymentInput) else {
+                failed = true
+                return
+            }
+            await parches.load()
+        }
         router.pop()
     }
 
@@ -206,6 +260,15 @@ struct ProfileView: View {
             ProfileView().toolbar(.hidden, for: .navigationBar)
         }
         .cruceStores(.sample())
+    }
+
+    #Preview("Cómo te pagan") {
+        var joan = MockData.joan
+        joan.paymentMethod = MockData.joanKey
+        return NavigationStack {
+            ProfileView().toolbar(.hidden, for: .navigationBar)
+        }
+        .cruceStores(.sample(viewer: joan))
     }
 
     #Preview("Borrar mi cuenta") {

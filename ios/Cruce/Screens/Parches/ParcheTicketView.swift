@@ -165,6 +165,16 @@ struct TicketCard: View {
                 }
             }
 
+            // En el ticket de quien debe: a quién y cómo pagarle (los que llenaron "Cómo te pagan").
+            if !ticket.paymentLines.isEmpty {
+                dashed
+                section("CÓMO PAGAR") {
+                    ForEach(ticket.paymentLines, id: \.self) { line in
+                        Text(line).font(.archivo(14, .extraBold)).fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
             if !ticket.lines.isEmpty {
                 dashed
                 section("GASTOS") {

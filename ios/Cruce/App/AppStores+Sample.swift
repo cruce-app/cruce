@@ -7,7 +7,8 @@
         /// En el inicio hay un cruce con Jesús; con `withAna`, Joan tiene también uno con Ana (el más reciente, abierto
         /// al arrancar) donde le debe $15.000, y el inicio muestra "Tus cruces". Con `closedJesus`, el cruce con Jesús
         /// está cerrado (desvinculado). Con `deletedJesus`, Jesús borró su cuenta: el cruce está cerrado y lo ve como
-        /// "Cuenta borrada", sin @usuario.
+        /// "Cuenta borrada", sin @usuario. Con `partnerPayment`, la otra persona del cruce llenó "Cómo te pagan" (para
+        /// ver cómo pagarle en Saldar); el de quien usa la app va en `viewer.paymentMethod`.
         /// Lo usan la app en Debug, `DebugScreen` y las vistas previas.
         @MainActor
         static func sample(
@@ -20,6 +21,7 @@
             withAna: Bool = false,
             closedJesus: Bool = false,
             deletedJesus: Bool = false,
+            partnerPayment: PaymentMethod? = nil,
             parcheBackend: InMemoryParcheBackend? = nil
         ) -> AppStores {
             let other = viewer.id == MockData.joan.id ? MockData.jesus : MockData.joan
@@ -39,6 +41,7 @@
             var byCruce: [UUID: [Movement]] = [:]
             if phase == .main {
                 var jesusCruce = MockData.joanJesusCruce(viewer: viewer)
+                jesusCruce.partner.paymentMethod = partnerPayment
                 jesusCruce.closedAt = closedJesus || deletedJesus ? .now : nil
                 if deletedJesus {
                     jesusCruce.partner.name = Profile.deletedName
