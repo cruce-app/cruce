@@ -29,3 +29,9 @@
 - [x] 5.1 `supabase db reset --local`, `supabase test db --local`, `swift test`, `swift format lint --strict`, `xcodebuild`
 - [ ] 5.2 Simulador: registro con @usuario, cambiarlo, verlo en la vista previa; borrar una cuenta con cruce y parche y ver "Cuenta borrada" desde la otra; intentos con `PCH-`/`SOY-` (hecho contra Supabase local por la API y con las pantallas `-screen`; falta tocarlo en el simulador con la sesión real)
 - [x] 5.3 Rechazo de pasar al cruce en la Actividad de quien lo propuso (S6)
+
+## 6. Decisiones del 17 nov 2026
+
+- [x] 6.1 Pagos a una cuenta borrada: `forget_account` confirma los que estaban por confirmar y firma la confirmación con su lugar; la migración confirma los que ya quedaron colgados (`20261117100000_pagos_cuenta_borrada.sql`, prueba `19_pagos_cuenta_borrada.sql`)
+- [x] 6.2 La cuenta borrada se ve en gris (`CruceColor.neutral`) en el cruce, en los del parche, en los tickets y en el detalle de un movimiento (`displayColor`)
+- [ ] 6.3 Correr `19_pagos_cuenta_borrada.sql` (Docker ya no está en la Mac: lo corre la CI) y subir la migración a testing y prod
