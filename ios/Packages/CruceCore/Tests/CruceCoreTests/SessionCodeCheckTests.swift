@@ -113,6 +113,10 @@ actor ScriptedDirectory: AccountDirectory {
     func updateAvatarColor(_ color: AvatarColor, for userID: UUID) async throws {
         try await base.updateAvatarColor(color, for: userID)
     }
+
+    func updatePaymentMethod(_ method: PaymentMethod?, for userID: UUID) async throws {
+        try await base.updatePaymentMethod(method, for: userID)
+    }
     func cruces(for userID: UUID) async throws -> [CruceLink] { try await base.cruces(for: userID) }
     func inviteCode(for userID: UUID) async throws -> String { try await base.inviteCode(for: userID) }
     func redeemInvite(_ code: String, for userID: UUID) async throws -> InviteCheck {

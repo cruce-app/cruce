@@ -87,6 +87,13 @@ public final class LedgerStore {
         BalanceState(net: net)
     }
 
+    /// Cómo pagarle a la otra persona en Saldar: solo cuando quien usa la app le debe en un cruce abierto y la otra
+    /// persona lo llenó en su perfil.
+    public var partnerPaymentMethod: PaymentMethod? {
+        guard case .youOwe = balance, !session.isOpenCruceClosed else { return nil }
+        return session.partner.paymentMethod
+    }
+
     /// La confirmación de desvincular ofrece "Saldar primero": el cruce abierto sigue abierto y su saldo no es $0.
     /// Un cruce cerrado ya no acepta pagos, así que ahí no se ofrece.
     public var offersSettleBeforeUnlink: Bool {

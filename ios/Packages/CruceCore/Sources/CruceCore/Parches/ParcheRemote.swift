@@ -7,7 +7,7 @@ public enum ParcheRemote {
     /// Lo que se pide de `parches` en una sola consulta: cada parche con todo lo suyo embebido (RLS solo deja ver
     /// los parches de quien pregunta).
     public static let detailSelect = """
-        id, name, code, status, created_at, closed_at, created_by, parche_participants(*, participant_username), \
+        id, name, code, status, created_at, closed_at, created_by, parche_participants(*, participant_username, participant_payment), \
         parche_expenses(*, parche_expense_payers(participant_id, amount), \
         parche_expense_shares(participant_id, amount, input), \
         parche_expense_items(id, position, amount, participant_ids, name)), \
@@ -80,6 +80,8 @@ public enum ParcheRemote {
         /// El campo calculado `participant_username` (solo en `detailSelect`) y `account_deleted_at`.
         let username: String?
         let accountDeletedAt: Date?
+        /// El campo calculado `participant_payment` (`{"kind", "handle"}` o null; solo en `detailSelect`).
+        let payment: PaymentMethodRow?
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -91,14 +93,22 @@ public enum ParcheRemote {
             case avatarColor = "avatar_color"
             case username = "participant_username"
             case accountDeletedAt = "account_deleted_at"
+            case payment = "participant_payment"
         }
 
         var model: ParcheParticipant {
             ParcheParticipant(
                 id: id, userID: userID, displayName: displayName, claimCode: claimCode, joinedAt: joinedAt,
                 lastSeenAt: lastSeenAt, avatarColor: avatarColor ?? .yellow, username: username,
-                accountDeletedAt: accountDeletedAt)
+                accountDeletedAt: accountDeletedAt,
+                paymentMethod: payment.flatMap { PaymentMethod(storedKind: $0.kind, handle: $0.handle) })
         }
+    }
+
+    /// `participant_payment`: cómo pagarle a alguien del parche.
+    struct PaymentMethodRow: Decodable, Sendable {
+        let kind: String?
+        let handle: String?
     }
 
     struct PayerRow: Decodable {

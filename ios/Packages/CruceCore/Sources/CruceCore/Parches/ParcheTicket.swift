@@ -48,6 +48,9 @@ public struct ParcheTicket: Hashable, Sendable {
     public let claimCode: String?
     /// "Cómo se calcula" en el personal: las cuentas que dan su saldo; `nil` en el del parche o si no hay nada.
     public let breakdown: Breakdown?
+    /// "Cómo pagar" en el personal de quien debe: "Nequi de Ana: 300 123 4567" por cada persona a quien le paga y que
+    /// lo llenó. Vacío en el de quien no debe y en el del parche.
+    public var paymentLines: [String] = []
 
     /// "¿Ya tienes Cruce? Entra con el código SOY-K7QX2M y tus cuentas te siguen".
     public var claimPhrase: String? {
@@ -105,12 +108,16 @@ public struct ParcheTicket: Hashable, Sendable {
             }
             return Line(concept: expense.concept, share: share, paid: paid, items: items)
         }
-        return ParcheTicket(
+        var ticket = ParcheTicket(
             parcheName: detail.parche.name, personName: name, person: person, headline: headline, amount: net,
             favor: favor,
             transfers: transfers.map { phrase(for: $0, in: detail) }, lines: lines,
             expenseCount: detail.visibleExpenses.count, cutAt: date, stamp: net == 0 ? .settled : .pending,
             claimCode: person.hasApp ? nil : person.claimCode, breakdown: breakdown(for: participantID, in: detail))
+        ticket.paymentLines = transfers.filter { $0.fromID == participantID }.compactMap {
+            paymentLine(for: $0, in: detail)
+        }
+        return ticket
     }
 
     /// El ticket del parche: total gastado y transferencias para saldar, sin los saldos de cada persona.
@@ -127,6 +134,13 @@ public struct ParcheTicket: Hashable, Sendable {
     /// "Jesús le paga $110.000 a Ana".
     public static func phrase(for transfer: ParcheTransfer, in detail: ParcheDetail) -> String {
         "\(displayName(transfer.fromID, in: detail)) le paga \(Money.format(transfer.amount)) a \(displayName(transfer.toID, in: detail))"
+    }
+
+    /// Cómo pagarle a quien recibe esa transferencia: "Nequi de Ana: 300 123 4567"; `nil` si no lo llenó o no tiene la
+    /// app.
+    public static func paymentLine(for transfer: ParcheTransfer, in detail: ParcheDetail) -> String? {
+        guard let receiver = detail.participant(transfer.toID), let method = receiver.paymentMethod else { return nil }
+        return method.ownerLine(name: receiver.displayName)
     }
 
     /// "Ana", "Ana y Jesús" o "Ana, Jesús y Joan".

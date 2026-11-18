@@ -35,10 +35,28 @@ public enum MockParches {
         MockData.joan.id: .yellow, MockData.jesus.id: .violet, anaUserID: .green,
     ]
 
-    /// Un backend en memoria con los dos parches; Joan y Jesús comparten un cruce.
-    public static func backend(reference: Date = .now) -> InMemoryParcheBackend {
-        InMemoryParcheBackend(
-            parches: parches(reference: reference), cruces: [[MockData.joan.id, MockData.jesus.id]], colors: colors)
+    /// Un backend en memoria con los dos parches; Joan y Jesús comparten un cruce. Con `withPayments`, Jesús y Joan
+    /// llenaron "Cómo te pagan" (ver `withPayments(_:)`).
+    public static func backend(reference: Date = .now, withPayments: Bool = false) -> InMemoryParcheBackend {
+        let list = parches(reference: reference)
+        return InMemoryParcheBackend(
+            parches: withPayments ? list.map(Self.withPayments) : list,
+            cruces: [[MockData.joan.id, MockData.jesus.id]],
+            colors: colors)
+    }
+
+    /// El mismo parche con "Cómo te pagan" en quienes lo llenaron: Jesús (`MockData.jesusNequi`) y Joan
+    /// (`MockData.joanKey`). Ana no lo llenó y Carlos está sin la app. En "Santa Marta", Carlos le paga a los dos.
+    public static func withPayments(_ detail: ParcheDetail) -> ParcheDetail {
+        var copy = detail
+        for index in copy.participants.indices {
+            switch copy.participants[index].userID {
+            case MockData.jesus.id: copy.participants[index].paymentMethod = MockData.jesusNequi
+            case MockData.joan.id: copy.participants[index].paymentMethod = MockData.joanKey
+            default: break
+            }
+        }
+        return copy
     }
 
     /// Los parches tal como están guardados (sin la vista de nadie).

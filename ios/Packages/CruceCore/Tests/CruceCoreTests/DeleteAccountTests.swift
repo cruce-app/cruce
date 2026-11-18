@@ -137,7 +137,7 @@ struct DeleteAccountTests {
         #expect(carlos.label == "Carlos (sin la app)")
         #expect(carlos.username == nil)
         #expect(!carlos.isDeletedAccount)
-        #expect(ParcheRemote.detailSelect.contains("parche_participants(*, participant_username)"))
+        #expect(ParcheRemote.detailSelect.contains("parche_participants(*, participant_username, participant_payment)"))
     }
 
     @Test("Un participante guardado antes del @usuario se lee igual")

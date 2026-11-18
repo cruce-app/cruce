@@ -29,6 +29,8 @@ public final class SessionStore {
         case inviteRejected(String)
         /// El @usuario no cumple el formato o ya está ocupado; trae el mensaje de la base.
         case usernameRejected(String)
+        /// El Nequi o la llave de "Cómo te pagan" no tienen el formato.
+        case invalidPaymentMethod(PaymentMethodProblem)
 
         public var message: String {
             switch self {
@@ -39,6 +41,7 @@ public final class SessionStore {
             case .network: "No pudimos conectarnos. Revisa tu conexión y vuelve a intentarlo."
             case .inviteRejected(let message): message
             case .usernameRejected(let message): message
+            case .invalidPaymentMethod(let problem): problem.message
             }
         }
     }
@@ -176,7 +179,7 @@ public final class SessionStore {
             }
             me = Member(
                 id: user, name: profile.displayName, avatarColor: profile.avatarColor, tikeVariant: me.tikeVariant,
-                username: profile.username)
+                username: profile.username, paymentMethod: profile.paymentMethod)
             apply(try await directory.cruces(for: user))
             phase = cruces.isEmpty ? .invite : .main
             error = nil
@@ -402,6 +405,30 @@ public final class SessionStore {
         }
         if ok {
             me.avatarColor = color
+            await saveSnapshot()
+        }
+        return ok
+    }
+
+    /// Guarda "Cómo te pagan" (Tu perfil): Nequi o llave con lo que se escribió. Vacío (o solo espacios) lo borra.
+    /// Un dato con mal formato deja el problema y no llama a la base; sin red deja el error y conserva el anterior.
+    @discardableResult
+    public func updatePaymentMethod(kind: PaymentMethod.Kind, input: String) async -> Bool {
+        guard let user = userID else { return false }
+        var method: PaymentMethod?
+        if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            switch PaymentMethod.make(kind: kind, input: input) {
+            case .success(let valid): method = valid
+            case .failure(let problem):
+                error = .invalidPaymentMethod(problem)
+                return false
+            }
+        }
+        let ok = await perform {
+            try await directory.updatePaymentMethod(method, for: user)
+        }
+        if ok {
+            me.paymentMethod = method
             await saveSnapshot()
         }
         return ok
