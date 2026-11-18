@@ -34,4 +34,5 @@
 
 - [x] 6.1 Pagos a una cuenta borrada: `forget_account` confirma los que estaban por confirmar y firma la confirmación con su lugar; la migración confirma los que ya quedaron colgados (`20261117100000_pagos_cuenta_borrada.sql`, prueba `19_pagos_cuenta_borrada.sql`)
 - [x] 6.2 La cuenta borrada se ve en gris (`CruceColor.neutral`) en el cruce, en los del parche, en los tickets y en el detalle de un movimiento (`displayColor`)
-- [ ] 6.3 Correr `19_pagos_cuenta_borrada.sql` (Docker ya no está en la Mac: lo corre la CI) y subir la migración a testing y prod
+- [x] 6.3 Correr `19_pagos_cuenta_borrada.sql`: sin la migración fallan las pruebas 2, 4 y 6; con ella pasan las 484 (Supabase local sobre Kiri, `~/.kiri/bin/docker`)
+- [ ] 6.4 Subir la migración `20261117100000` a testing y prod (`scripts/db-push.sh`)
