@@ -27,6 +27,7 @@ struct SettingsView: View {
                         }
                         Spacer()
                         Image(systemName: "chevron.right").font(.system(size: 15, weight: .heavy))
+                            .accessibilityHidden(true)
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
@@ -48,6 +49,7 @@ struct SettingsView: View {
                         Spacer()
                         Text("Cada mes").font(.archivo(13, .extraBold))
                         Image(systemName: "chevron.right").font(.system(size: 13, weight: .heavy))
+                            .accessibilityHidden(true)
                     }
                 }
 

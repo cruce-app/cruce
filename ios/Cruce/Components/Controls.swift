@@ -93,7 +93,8 @@ struct Chip: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 if isSelected && selectedColor != CruceColor.ink && showsCheck {
-                    Image(systemName: "checkmark").font(.system(size: 11, weight: .black))
+                    // Decorativo: "seleccionado" ya lo dice el rasgo de accesibilidad.
+                    Image(systemName: "checkmark").font(.system(size: 11, weight: .black)).accessibilityHidden(true)
                 } else if let member {
                     Avatar(member: member, size: 18)
                 } else if let dotColor {
@@ -114,6 +115,11 @@ struct Chip: View {
                 border: isSelected ? BorderWidth.regular : BorderWidth.thin,
                 shadow: isSelected && selectedColor != CruceColor.ink ? ShadowOffset.xs : 0
             )
+            // Se ve de 34 pt como en el diseño, pero el área táctil es de 44 pt: el relleno transparente agranda la
+            // forma que recibe el toque y el relleno negativo devuelve el tamaño original al layout.
+            .padding(.vertical, (Spacing.minTouch - 34) / 2)
+            .contentShape(Rectangle())
+            .padding(.vertical, -(Spacing.minTouch - 34) / 2)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -199,15 +205,16 @@ struct NeoTextField: View {
     }
 }
 
-/// Estilo de switch neobrutalista.
+/// Estilo de switch neobrutalista. Toda la fila es el botón: se activa tocando el texto o el switch, y VoiceOver la
+/// lee como un interruptor con su nombre ("Sonidos, interruptor, activado").
 struct NeoToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.label
-            Spacer()
-            Button {
-                configuration.isOn.toggle()
-            } label: {
+        Button {
+            configuration.isOn.toggle()
+        } label: {
+            HStack {
+                configuration.label
+                Spacer()
                 Capsule()
                     .fill(configuration.isOn ? CruceColor.green : CruceColor.neutral)
                     .overlay(Capsule().strokeBorder(CruceColor.ink, lineWidth: BorderWidth.regular))
@@ -221,9 +228,13 @@ struct NeoToggleStyle: ToggleStyle {
                     .frame(width: 52, height: 30)
                     .animation(.easeOut(duration: 0.15), value: configuration.isOn)
             }
-            .buttonStyle(.plain)
-            .accessibilityValue(configuration.isOn ? "Activado" : "Desactivado")
+            .frame(minHeight: Spacing.minTouch)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isToggle)
+        .accessibilityValue(configuration.isOn ? "Activado" : "Desactivado")
     }
 }
 

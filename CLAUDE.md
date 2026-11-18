@@ -87,7 +87,7 @@ Es un movimiento más (`kind = settlement`, reparto "todo es del otro"): quien d
 | Diseño (opción A, 20 pantallas y guía de estilo) | Cerrado | Sí. Capturas en `docs/design/screens/` |
 | App iOS con todas las pantallas y datos de ejemplo | Compila, corre y se ve como el diseño (CP1) | Sí: capturas de las 20 pantallas en iPhone 16, SE y Pro Max, y con texto grande. Probada en un iPhone 17 Pro físico (cuenta gratuita de Apple) |
 | Inicio de sesión (CP3) | Por correo con un código de 6 dígitos (supabase-swift 2.55.4), sesión persistente, perfil y etapa de entrada según la sesión real. Sign in with Apple queda para cuando se pague la membresía | En local sí: pasos de la tarea 4.2 de `inicio-sesion-correo`. En testing (27 oct 2026), con SMTP de Gmail y la plantilla: Joan y Jesús entraron en "Cruce Test" con el código que llegó por correo |
-| Pruebas de Swift (saldo, pesos, fechas, repositorio, stores, sesión, navegación y parches) | 377 pruebas de Swift Testing (37 suites) en verde, en el paquete `CruceCore` | Sí: `swift test`, sin Xcode ni simulador, en la Mac y en Linux (`swift:6.4`) |
+| Pruebas de Swift (saldo, pesos, fechas, repositorio, stores, sesión, navegación y parches) | 384 pruebas de Swift Testing (38 suites) en verde, en el paquete `CruceCore` | Sí: `swift test`, sin Xcode ni simulador, en la Mac y en Linux (`swift:6.4`) |
 | Parches | Lógica en CruceCore (reparto, saldos, `ParcheStore` con cola sin conexión), pantallas nuevas (17 entradas `-screen` en Debug), tickets para compartir y `SupabaseParcheRepository` conectado en `AppStores.live()`. Migración `20261026095551_parches.sql` aplicada en local y en la nube (26 oct 2026) | Sí: pgTAP (`06_parches.sql`), `swift test` y, contra Supabase local, el repositorio real con tres cuentas (crear, unirse, sin la app, cuatro repartos, pagos, reclamar lugar, cerrar, pasar al cruce, avisos) y la app en el simulador mostrando "Tus parches" |
 | Base de datos (Supabase) | `init.sql` aplicada en local y en la nube (proyecto `cruce`, Oregon, que es el ambiente de testing). `endurecer_rls.sql` (políticas solo para `authenticated`, `(select auth.uid())` e índices) y `parches.sql` aplicadas en local y en la nube (26 oct 2026). `vincular_cruces.sql` (un cruce por pareja, un cruce pendiente por persona, `preview_invite` y `my_cruces`) aplicada en local y en testing (27 oct 2026). `funciones_pendientes.sql` (cerrar un cruce, solo lectura y `my_cruces` con cerrado y reparto) aplicada en local y en testing (27 oct 2026). Las siete migraciones del 29 oct (`correcciones-diseno`) están en local, testing y prod (30 oct 2026) | Sí: 499 pruebas pgTAP en 20 archivos en verde (@usuario, borrar la cuenta e intentos de parche, además de saldo, reglas, vinculación, RLS y RLS endurecido, también sin sesión, parches, vincular cruces, cerrar cruces, pasar al cruce, colores, cerrar parche, códigos e ítems) y revisión de seguridad hecha |
 | Vincular (CP4, cambio `vincular-cruces`) | Invitar muestra el código real y pasa sola a "Conectados" (revisa cada 3 s); unirse valida con la base y muestra "Cuenta de Joan"; nombres, colores y recibo salen de la base. La sesión guarda la lista de cruces; la app usa el más reciente hasta el CP4b | En local sí: Joan invita en el simulador y Jesús se une por la API; Ana se une en el simulador al código de Pedro (válido e inválido). En testing (27 oct 2026): Joan y Jesús se vincularon en "Cruce Test" desde sus iPhone |
@@ -119,6 +119,7 @@ cruce/
 │   ├── ROADMAP.md            Checkpoints, se toman uno a uno
 │   ├── arquitectura.md       Decisiones de arquitectura
 │   ├── diseno.md             Tokens e ilustraciones
+│   ├── accesibilidad.md      Recorrido con VoiceOver para probar en el teléfono y lo que se corrigió
 │   └── design/screens/       Capturas PNG de las 20 pantallas y la guía (referencia visual)
 ├── ios/
 │   ├── project.yml           Proyecto de XcodeGen (el .xcodeproj NO se sube al repo)
@@ -133,7 +134,8 @@ cruce/
 │   │   │                     Feedback (sonido y vibración de los seis momentos)
 │   │   ├── Components/       FolderCard, MovementRow, Controls (IconButton, Chip, NeoSegmented,
 │   │   │                     NeoTextField, NeoToggleStyle, PageDots, Badge, BeforeAfter),
-│   │   │                     AmountKeypad, Avatar, CategoryIcon, CruceLogo, LaunchSplash (entrada)
+│   │   │                     AmountKeypad, Avatar, CategoryIcon, CruceLogo, LaunchSplash (entrada),
+│   │   │                     SpokenAmount (`Money.spoken`: cómo VoiceOver lee un monto)
 │   │   ├── Screens/          Onboarding, Auth, Home, AddMovement, History, Detail, Settle,
 │   │   │                     Offline, Code ("Tengo un código", EnterCodeView), Settings (Ajustes de
 │   │   │                     la cuenta, CruceSettingsView y SettingsComponents) y Parches (lista,
@@ -421,7 +423,7 @@ Otro iPhone ───┘  (Auth · Postgres ·    └─ Realtime ─► los dos
 - **Cada pantalla tiene su `#Preview`**, con `.cruceStores(.sample(...))` y dentro de `#if DEBUG` (para que Release compile). Si agregas una pantalla, agrega su preview y su fila en la tabla de la sección 5.
 - **`MockData` solo en Debug, vistas previas y pruebas.** Ninguna vista de producción lee `MockData` ni datos fijos como el código de invitación: `rg -n "MockData" ios/Cruce` solo debe encontrar líneas dentro de `#if DEBUG` o de un `#Preview`.
 - **Textos de la interfaz en español**, con tuteo y tono cercano, sin jerga bancaria. Los comentarios del código también van en español.
-- **Accesibilidad:** área táctil mínima de 44 pt, `accessibilityLabel` en los botones de solo ícono, las ilustraciones con su label y la dirección de la deuda siempre en texto.
+- **Accesibilidad:** los montos se leen con `Money.spoken` ("20000 pesos", sin puntos; el teclado usa la misma regla), los íconos decorativos van con `accessibilityHidden` y el recorrido para probarlo está en `docs/accesibilidad.md`. Área táctil mínima de 44 pt, `accessibilityLabel` en los botones de solo ícono, las ilustraciones con su label y la dirección de la deuda siempre en texto.
 - **Dependencias:** no agregues paquetes sin preguntar. Las previstas son `supabase-swift` (CP3) y, como opción, `swift-snapshot-testing` (CP12). El backend usa solo la librería estándar mientras se pueda.
 - **Migraciones:** nunca edites una migración que ya se aplicó en la nube; crea una nueva en `supabase/migrations/`.
 - **Secretos:** nunca en el repo. `.env` está en `.gitignore`. La llave `service_role` vive solo en el backend.

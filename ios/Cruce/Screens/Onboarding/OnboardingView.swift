@@ -168,6 +168,7 @@ private struct CrossingPage: View {
                         HStack(spacing: 4) {
                             Avatar(member: Self.joan, size: 34)
                             Image(systemName: "arrow.right").font(.system(size: 14, weight: .black))
+                                .accessibilityHidden(true)
                             Avatar(member: Self.jesus, size: 34)
                         }
                     }

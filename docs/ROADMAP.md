@@ -207,8 +207,8 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 
 ## CP12 · Calidad
 - [ ] Pruebas de captura de las pantallas principales (si se aprueba la dependencia).
-- [ ] Recorrido completo con VoiceOver.
-- [ ] Pruebas de la cola sin conexión de `LedgerStore` con un repositorio falso (guardar, eliminar, saldar y fallo de sincronización ya tienen pruebas desde `ordenar-app-ios`).
+- [ ] Recorrido completo con VoiceOver: la revisión en el código y sus arreglos están hechos (cambio `calidad-cp12`, 18 nov 2026); falta que Joan siga en el teléfono la lista de `docs/accesibilidad.md`.
+- [x] Pruebas de la cola sin conexión de `LedgerStore` con un repositorio falso: orden de envío, cortes de red, rechazos a mitad de la cola, cruce cerrado, editar y borrar sin enviar y volver a abrir la app (`LedgerQueueTests`, 18 nov 2026). No apareció ningún error.
 - [x] CI en GitHub Actions: `go test`, pruebas SQL y `swift test` en Linux; `xcodebuild` se corre a mano con `ios.yml` (hecho en `base-de-calidad`).
 
 **Hecho cuando:** cada PR corre las pruebas automáticamente y VoiceOver lee bien todo el flujo.

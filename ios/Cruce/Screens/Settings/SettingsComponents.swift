@@ -65,10 +65,13 @@ struct SettingsActionLabel: View {
             }
             // Ancho fijo para que los textos de las filas queden alineados.
             .frame(width: 24)
+            // El título ya dice la acción; el ícono no se lee.
+            .accessibilityHidden(true)
             Text(title).font(.archivo(15, tint == CruceColor.ink ? .bold : .extraBold))
             Spacer()
             if showsChevron {
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .heavy))
+                    .accessibilityHidden(true)
             }
         }
         .foregroundStyle(CruceColor.ink)
