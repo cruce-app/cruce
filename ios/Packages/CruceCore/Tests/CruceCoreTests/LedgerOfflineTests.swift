@@ -106,6 +106,8 @@ struct LedgerOfflineTests {
         await other.restore()
         #expect(other.movements.isEmpty)
         #expect(other.pendingSyncCount == 0)
+        // Y se borra del teléfono, para que no se envíe a nombre de otra persona.
+        #expect(try await local.load() == LedgerLocalState())
     }
 
     @Test("Sin red la app queda sin conexión; al volver, envía lo pendiente")
