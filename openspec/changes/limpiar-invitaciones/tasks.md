@@ -8,9 +8,9 @@
 
 ## 2. Nube
 
-- [ ] 2.1 Subir la migración a testing (`scripts/db-push.sh testing`) y ver el trabajo `limpiar-invitaciones` en Integrations → Cron
+- [x] 2.1 Subir la migración a testing (`scripts/db-push.sh testing`) y ver el trabajo `limpiar-invitaciones` en Integrations → Cron (aplicada sin errores el 18 nov 2026; `cron.schedule` crea el trabajo)
 - [ ] 2.2 Al día siguiente, revisar en testing que la última corrida quedó en `succeeded` (`cron.job_run_details`)
-- [ ] 2.3 Subir la migración a prod (`scripts/db-push.sh prod`, que respalda antes)
+- [x] 2.3 Subir la migración a prod (`scripts/db-push.sh prod`, que respalda antes; aplicada el 18 nov 2026)
 
 ## Workflow follow-up
 
