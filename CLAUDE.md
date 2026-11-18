@@ -172,7 +172,7 @@ cruce/
 │   │                         20261029140000_codigos.sql, 20261029150000_items_con_nombre.sql y
 │   │                         20261029160000_parches_sin_ambiguedad.sql; y las del 30 oct (en local, testing y prod):
 │   │                         20261030100000_usuarios.sql, 20261030110000_borrar_cuenta.sql,
-│   │                         20261030120000_intentos_parche.sql y 20261030130000_cuenta_borrada_guardas.sql; y la del 17 nov (solo en local):
+│   │                         20261030120000_intentos_parche.sql y 20261030130000_cuenta_borrada_guardas.sql; y la del 17 nov (en local, testing y prod):
 │   │                         20261117100000_pagos_cuenta_borrada.sql
 │   ├── ambientes.env         Identificador del proyecto de testing y de prod
 │   └── tests/                Pruebas pgTAP (01_saldo a 19_pagos_cuenta_borrada)
