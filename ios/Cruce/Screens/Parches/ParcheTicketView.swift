@@ -158,6 +158,7 @@ struct TicketCard: View {
                     ForEach(ticket.transfers, id: \.self) { line in
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Image(systemName: "arrow.right").font(.system(size: 11, weight: .black))
+                                .accessibilityHidden(true)
                             Text(line).font(.archivo(14, .extraBold)).fixedSize(horizontal: false, vertical: true)
                         }
                     }

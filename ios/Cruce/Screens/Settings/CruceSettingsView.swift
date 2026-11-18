@@ -50,6 +50,7 @@ struct CruceSettingsView: View {
                                 Spacer()
                                 Text(defaultSplit.defaultTitle).font(.archivo(13, .extraBold))
                                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .heavy))
+                                    .accessibilityHidden(true)
                             }
                             .contentShape(Rectangle())
                         }

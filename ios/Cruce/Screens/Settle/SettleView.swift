@@ -112,13 +112,16 @@ struct SettleView: View {
                     VStack(spacing: 2) {
                         Text(Money.format(paid))
                             .font(.archivo(30, .black))
+                            .accessibilityLabel(Money.spoken(paid))
                             .tracking(-1)
                             .lineLimit(1)
                             .minimumScaleFactor(0.4)
+                        // Flecha de quien paga a quien recibe; los textos de cada lado ya lo dicen.
                         HStack(spacing: 0) {
                             Rectangle().fill(CruceColor.ink).frame(height: 3)
                             Image(systemName: "chevron.right").font(.system(size: 16, weight: .black))
                         }
+                        .accessibilityHidden(true)
                     }
                     .padding(.bottom, 22)
                     person(receiver, caption: iOwe ? "\(receiver.name) recibe" : "Tú recibes")

@@ -34,11 +34,14 @@ struct MovementRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 HStack(spacing: 3) {
                     if compact {
+                        // El signo y "a tu favor" ya dicen la dirección.
                         Image(systemName: impact >= 0 ? "arrow.down.left" : "arrow.up.right")
                             .font(.system(size: 11, weight: .heavy))
+                            .accessibilityHidden(true)
                     }
                     Text(Money.format(impact, showsSign: true))
                         .font(.archivo(15, .black))
+                        .accessibilityLabel(Money.spoken(impact, showsSign: true))
                 }
                 Text(impact >= 0 ? "a tu favor" : "a favor de \(partnerName)")
                     .font(.archivo(11, .bold))

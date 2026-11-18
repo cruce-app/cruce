@@ -43,7 +43,7 @@ struct DeleteAccountConfirmation: View {
                         Label {
                             Text(line).fixedSize(horizontal: false, vertical: true)
                         } icon: {
-                            Image(systemName: "circle.fill").font(.system(size: 6))
+                            Image(systemName: "circle.fill").font(.system(size: 6)).accessibilityHidden(true)
                         }
                         .textStyle(.body)
                         .foregroundStyle(CruceColor.textBody)

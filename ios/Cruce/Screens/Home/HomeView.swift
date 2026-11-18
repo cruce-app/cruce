@@ -174,6 +174,7 @@ struct BalanceCard: View {
                     Text(phrase).textStyle(.balancePhrase)
                     Text(Money.format(ledger.balance.amount))
                         .textStyle(.amount)
+                        .accessibilityLabel(Money.spoken(ledger.balance.amount))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                     caption
@@ -210,9 +211,9 @@ struct BalanceCard: View {
         HStack(spacing: 6) {
             switch ledger.balance {
             case .theyOweYou:
-                DirectionLabel(from: session.partner.name, to: "tú")
+                DirectionLabel(from: session.partner.name, to: "tú", spoken: "\(session.partner.name) te debe")
             case .youOwe:
-                DirectionLabel(from: "Tú", to: session.partner.name)
+                DirectionLabel(from: "Tú", to: session.partner.name, spoken: "Le debes a \(session.partner.name)")
             case .settled:
                 EmptyView()
             }
@@ -237,6 +238,8 @@ struct BalanceCard: View {
 struct DirectionLabel: View {
     let from: String
     let to: String
+    /// Lo que dice VoiceOver en lugar de la flecha ("Jesús te debe"); sin él, "Jesús le debe a Ana".
+    var spoken: String?
 
     var body: some View {
         HStack(spacing: 3) {
@@ -247,7 +250,7 @@ struct DirectionLabel: View {
         .font(.archivo(13, .extraBold))
         .foregroundStyle(CruceColor.ink)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(from) le debe a \(to)")
+        .accessibilityLabel(spoken ?? "\(from) le debe a \(to)")
     }
 }
 

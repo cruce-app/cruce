@@ -106,6 +106,7 @@ struct CruceRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(Money.format(net, showsSign: true))
                     .font(.archivo(18, .black))
+                    .accessibilityLabel(Money.spoken(net, showsSign: true))
                     .lineLimit(1)
                 if let side {
                     Text(side)
