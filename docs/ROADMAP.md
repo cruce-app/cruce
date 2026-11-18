@@ -189,7 +189,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 
 ## CP10 · Tareas programadas
 - [ ] Recordatorio mensual para saldar si el saldo es distinto de $0 (en Go con un ticker, o con `pg_cron`).
-- [ ] Limpieza diaria de invitaciones vencidas.
+- [x] Limpieza diaria de invitaciones vencidas: `pg_cron` en la base, no en Go (cambio `limpiar-invitaciones`, 18 nov 2026). Borra las vencidas hace más de 30 días y los intentos fallidos de más de un día.
 - [ ] Ajustes → "Recordarme saldar": nunca, cada semana o cada mes.
 
 **Hecho cuando:** las dos tareas corren solas y dejan un registro.

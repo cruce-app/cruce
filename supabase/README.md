@@ -18,6 +18,7 @@ Base de datos, inicio de sesión y tiempo real.
     - `preview_invite(p_code)` → `{"ok": true, "inviter_name": "Joan"}` o el mismo error que daría canjearlo. No une a nadie; los códigos inválidos cuentan para el límite de intentos.
     - `my_cruces()` → los cruces completos de quien llama (con quién, y colores y recibo de cada lado), del que se completó más recientemente al más viejo. Respeta RLS.
 - **Eliminar** es un borrado suave (`deleted_at`), para poder avisarle al otro.
+- **Limpieza diaria** (`20261118100000_limpiar_invitaciones.sql`, CP10): el trabajo `limpiar-invitaciones` de `pg_cron` corre todos los días a las 08:00 UTC (3 a. m. en Bogotá) y llama a `cleanup_expired_invites()`, que borra las invitaciones vencidas hace más de 30 días sin canjear y los intentos fallidos de más de un día. Las canjeadas y las vencidas recientes se conservan (así un código reciente sigue diciendo "venció" y no "no existe"). En la nube se ve en Integrations → Cron; las corridas quedan en `cron.job_run_details`.
 - **Tiempo real** activado para `movements`.
 
 ## Aplicar
@@ -84,6 +85,7 @@ Son pruebas [pgTAP](https://pgtap.org) en `supabase/tests/`. Cada archivo corre 
 | `06_parches.sql` | Parches: crear, unirse, sin la app, repartos, pagos, reclamar lugar, cerrar, pasar al cruce y RLS |
 | `07_vincular_cruces.sql` | Un solo cruce pendiente por persona, vista previa del código, el nombre al unirse, un cruce por pareja (también directo en la tabla), cruces con personas distintas, `my_cruces` (también con RLS) y el límite de intentos con la vista previa |
 | `08_movimientos.sql` | Movimientos desde la app (rol `authenticated`): los dos del cruce editan y eliminan (borrado suave), nadie anota a nombre de otro, un tercero no ve ni toca nada (ni poniendo de pagador a un miembro) y guardar dos veces el mismo `id` deja una sola fila |
+| `20_limpiar_invitaciones.sql` | La limpieza diaria: borra las invitaciones vencidas hace más de 30 días y los intentos de más de un día; conserva las vencidas recientes (siguen diciendo `expired`) y las canjeadas; quien tiene un cruce pendiente recibe un código nuevo para ese cruce; nadie la corre desde la app; el trabajo está en `cron.job` |
 
 Para actuar como una persona, las pruebas usan `set local role authenticated` y fijan `request.jwt.claims` con su `sub`, que es lo que lee `auth.uid()`.
 
