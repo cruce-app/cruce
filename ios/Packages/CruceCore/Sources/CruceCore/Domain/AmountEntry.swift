@@ -29,7 +29,7 @@ public enum AmountKey: Hashable, Sendable {
 /// Cómo cambia el monto principal al tocar una tecla, y cómo se lee con VoiceOver.
 public enum AmountEntry {
     /// El mismo límite que `Money.parse`.
-    public static let maxDigits = 12
+    public static let maxDigits = Money.maxDigits
 
     /// El monto después de tocar `key`: los dígitos se agregan a la derecha, los ceros a la izquierda no cuentan y una
     /// tecla que pasaría de `maxDigits` no hace nada.

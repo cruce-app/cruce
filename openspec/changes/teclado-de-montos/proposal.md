@@ -12,7 +12,7 @@ Hoy el monto principal se escribe de tres formas distintas: en "Nuevo movimiento
 - Cambio entre teclados: tocar la tarjeta abre el de Cruce y cierra el del sistema; tocar otro campo hace lo contrario; tocar el espacio vacío cierra los dos.
 - Los montos secundarios (lo que puso cada pagador, el monto de un ítem, la propina) siguen con el teclado del sistema. "Cambiar monto" en Saldar sigue en una hoja con el teclado de Cruce.
 - VoiceOver: cada tecla tiene su etiqueta ("Borrar", "Tres ceros", el dígito); la tarjeta dice el monto y se abre con la acción por defecto, y al tocar una tecla se anuncia el monto nuevo ("Monto: 60000 pesos", que se oye "sesenta mil pesos").
-- El teclado de Cruce acepta hasta 12 dígitos, el mismo límite que ya tiene la lectura de montos (`formato-pesos`); antes cortaba en 9.
+- El teclado de Cruce y la lectura de montos (`formato-pesos`) aceptan hasta 9 dígitos ($999.999.999). Se usa un solo límite, `Money.maxDigits`; la lectura aceptaba 12, que para gastos entre amigos solo sirve para colar un cero de más (decisión de Joan, 17 nov 2026).
 - Se vuelve a probar "Deshacer" después de borrar un gasto del parche y se corrige si falla.
 
 ## Capabilities

@@ -26,8 +26,11 @@ public enum Money {
         return (value > 0 ? "+" : minusSign) + body
     }
 
-    /// Convierte lo que se escribe en el teclado ("60000") a pesos. Máximo 12 dígitos.
+    /// Lo más largo que se puede escribir en un monto: 9 dígitos ($999.999.999). Más es un cero de más por error.
+    public static let maxDigits = 9
+
+    /// Convierte lo que se escribe en el teclado ("60000") a pesos. Máximo `maxDigits` dígitos.
     public static func parse(digits: String) -> Int {
-        Int(digits.filter(\.isNumber).prefix(12)) ?? 0
+        Int(digits.filter(\.isNumber).prefix(maxDigits)) ?? 0
     }
 }
