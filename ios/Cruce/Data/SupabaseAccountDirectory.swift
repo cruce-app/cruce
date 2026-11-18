@@ -18,12 +18,17 @@ struct SupabaseAccountDirectory: AccountDirectory {
         var avatarColor: AvatarColor?
         /// Opcional para seguir leyendo una base sin la migración de usuarios. Nunca se manda.
         var username: String?
+        /// "Cómo te pagan" (desde `20261118110000_como_pagarme`). Al crear el perfil no se mandan.
+        var paymentKind: String?
+        var paymentHandle: String?
 
         enum CodingKeys: String, CodingKey {
             case id
             case displayName = "display_name"
             case avatarColor = "avatar_color"
             case username
+            case paymentKind = "payment_kind"
+            case paymentHandle = "payment_handle"
         }
     }
 
@@ -39,7 +44,8 @@ struct SupabaseAccountDirectory: AccountDirectory {
             .value
         return rows.first.map {
             Profile(
-                id: $0.id, displayName: $0.displayName, avatarColor: $0.avatarColor ?? .yellow, username: $0.username)
+                id: $0.id, displayName: $0.displayName, avatarColor: $0.avatarColor ?? .yellow, username: $0.username,
+                paymentMethod: PaymentMethod(storedKind: $0.paymentKind, handle: $0.paymentHandle))
         }
     }
 
@@ -76,6 +82,16 @@ struct SupabaseAccountDirectory: AccountDirectory {
         try await client
             .from("profiles")
             .update(["avatar_color": color.rawValue])
+            .eq("id", value: userID)
+            .execute()
+    }
+
+    func updatePaymentMethod(_ method: PaymentMethod?, for userID: UUID) async throws {
+        // Las dos columnas juntas (o las dos en null), solo la fila propia: así lo exige la base.
+        let values: [String: String?] = ["payment_kind": method?.kind.rawValue, "payment_handle": method?.handle]
+        try await client
+            .from("profiles")
+            .update(values)
             .eq("id", value: userID)
             .execute()
     }

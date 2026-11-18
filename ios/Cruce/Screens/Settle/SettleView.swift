@@ -41,6 +41,13 @@ struct SettleView: View {
             } else {
                 IllustrationView(illustration: .settle, height: 150)
                 paymentCard
+                // Cuando debes y la otra persona llenó "Cómo te pagan": a qué Nequi o llave pagarle.
+                if let payment = ledger.partnerPaymentMethod {
+                    PaymentCopyRow(text: payment.payPhrase(to: session.partner.name), method: payment)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .neoSurface(fill: CruceColor.peach, radius: Radius.input, border: BorderWidth.thin)
+                }
                 methodPicker
                 HStack {
                     Text("Fecha").font(.archivo(14, .bold))
@@ -230,6 +237,16 @@ struct ChangeAmountSheet: View {
             SettleView().toolbar(.hidden, for: .navigationBar)
         }
         .cruceStores(.sample())
+    }
+
+    #Preview("Debes y Jesús tiene Nequi") {
+        NavigationStack {
+            SettleView().toolbar(.hidden, for: .navigationBar)
+        }
+        .cruceStores(
+            .sample(
+                movements: MockData.movements().filter { $0.payerID == MockData.jesus.id },
+                partnerPayment: MockData.jesusNequi))
     }
 
     #Preview("Cambiar monto") {

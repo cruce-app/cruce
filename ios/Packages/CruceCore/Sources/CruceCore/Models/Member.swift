@@ -38,10 +38,12 @@ public struct Member: Identifiable, Codable, Hashable, Sendable {
     public var username: String?
     /// La otra persona borró su cuenta: su nombre es "Cuenta borrada" y el cruce quedó cerrado.
     public var isDeleted: Bool
+    /// Cómo le pagan ("Cómo te pagan" en Tu perfil), o `nil` si no lo llenó.
+    public var paymentMethod: PaymentMethod?
 
     public init(
         id: UUID = UUID(), name: String, avatarColor: AvatarColor, tikeVariant: TikeVariant, username: String? = nil,
-        isDeleted: Bool = false
+        isDeleted: Bool = false, paymentMethod: PaymentMethod? = nil
     ) {
         self.id = id
         self.name = name
@@ -49,13 +51,15 @@ public struct Member: Identifiable, Codable, Hashable, Sendable {
         self.tikeVariant = tikeVariant
         self.username = username
         self.isDeleted = isDeleted
+        self.paymentMethod = paymentMethod
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, avatarColor, tikeVariant, username, isDeleted
+        case id, name, avatarColor, tikeVariant, username, isDeleted, paymentMethod
     }
 
-    /// Un miembro guardado antes del @usuario (`sesion.json`) no trae `username` ni `isDeleted`.
+    /// Un miembro guardado antes del @usuario (`sesion.json`) no trae `username` ni `isDeleted`; uno de antes de "Cómo
+    /// te pagan", tampoco `paymentMethod`.
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
@@ -64,6 +68,7 @@ public struct Member: Identifiable, Codable, Hashable, Sendable {
         tikeVariant = try container.decode(TikeVariant.self, forKey: .tikeVariant)
         username = try container.decodeIfPresent(String.self, forKey: .username)
         isDeleted = try container.decodeIfPresent(Bool.self, forKey: .isDeleted) ?? false
+        paymentMethod = try container.decodeIfPresent(PaymentMethod.self, forKey: .paymentMethod)
     }
 
     /// "@joan", o `nil` sin @usuario.

@@ -31,6 +31,7 @@ Anota cualquier cosa que se oiga mal, se repita o no se pueda alcanzar.
 | 14 | Anotar un gasto del parche (Por consumo) | El botón de la caneca de un ítem | "Quitar el ítem" |
 | 15 | Tengo un código | El campo | "Código" y, al escribir, a qué lleva el código |
 | 16 | Sin conexión (modo avión) | La pantalla y, en un parche, un gasto sin enviar | "No pudimos sincronizar" y cuántos pendientes; en el parche, "Sin enviar" en la fila |
+| 17 | Saldar cuando debes (Jesús llenó su Nequi) y "Para saldar" | La frase de cómo pagarle y "Copiar" | "Págale a Jesús por Nequi: 3 0 0, 1 2 3, 4 5 6 7" (dígito por dígito); el botón dice "Copiar el número de Nequi" (o "Copiar la llave") y después "Copiado", sin sonido ni vibración |
 
 ## Lo que se corrigió (cambio `calidad-cp12`)
 

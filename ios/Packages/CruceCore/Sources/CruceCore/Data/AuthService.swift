@@ -32,19 +32,22 @@ public struct Profile: Equatable, Sendable {
     public var username: String?
     /// Cuándo se borró la cuenta (`profiles.deleted_at`); el perfil queda como lápida con `deletedName`.
     public var deletedAt: Date?
+    /// Cómo le pagan (`profiles.payment_kind` y `payment_handle`), o `nil` si no lo llenó.
+    public var paymentMethod: PaymentMethod?
 
     /// El nombre de una cuenta borrada (igual que en `forget_account`).
     public static let deletedName = "Cuenta borrada"
 
     public init(
         id: UUID, displayName: String, avatarColor: AvatarColor = .yellow, username: String? = nil,
-        deletedAt: Date? = nil
+        deletedAt: Date? = nil, paymentMethod: PaymentMethod? = nil
     ) {
         self.id = id
         self.displayName = displayName
         self.avatarColor = avatarColor
         self.username = username
         self.deletedAt = deletedAt
+        self.paymentMethod = paymentMethod
     }
 }
 
@@ -59,6 +62,9 @@ public protocol AccountDirectory: Sendable {
     func updateDisplayName(_ name: String, for userID: UUID) async throws
     /// Cambia el color del usuario (`profiles.avatar_color`). La base lo copia a sus lugares en los parches.
     func updateAvatarColor(_ color: AvatarColor, for userID: UUID) async throws
+    /// Guarda cómo le pagan al usuario (`profiles.payment_kind` y `payment_handle`), o lo borra con `nil`. Ya viene
+    /// validado (`PaymentMethod.make`). Solo la fila propia.
+    func updatePaymentMethod(_ method: PaymentMethod?, for userID: UUID) async throws
     /// Los cruces completos (de dos personas) del usuario (`my_cruces()`): primero los abiertos y después los cerrados,
     /// cada grupo del más reciente al más viejo. Un cruce pendiente, donde nadie se ha unido, no aparece.
     func cruces(for userID: UUID) async throws -> [CruceLink]
@@ -275,7 +281,7 @@ public actor InMemoryAccountDirectory: AccountDirectory {
     }
 
     /// Como `forget_account`: cierra sus cruces completos, borra su cruce pendiente con su código y deja el perfil como
-    /// lápida (sin @usuario).
+    /// lápida (sin @usuario ni cómo le pagan).
     public func deleteAccount(for userID: UUID) async throws {
         if isFailing { throw Offline() }
         for index in ledgers.indices
@@ -290,6 +296,7 @@ public actor InMemoryAccountDirectory: AccountDirectory {
         if var profile = profiles[userID] {
             profile.displayName = Profile.deletedName
             profile.username = nil
+            profile.paymentMethod = nil
             profile.deletedAt = now
             profiles[userID] = profile
         }
@@ -310,6 +317,12 @@ public actor InMemoryAccountDirectory: AccountDirectory {
         if isFailing { throw Offline() }
         guard profiles[userID] != nil else { throw NotFound() }
         profiles[userID]?.avatarColor = color
+    }
+
+    public func updatePaymentMethod(_ method: PaymentMethod?, for userID: UUID) async throws {
+        if isFailing { throw Offline() }
+        guard profiles[userID] != nil, profiles[userID]?.deletedAt == nil else { throw NotFound() }
+        profiles[userID]?.paymentMethod = method
     }
 
     public func setDefaultOtherPercent(_ percent: Int, in cruceID: UUID, for userID: UUID) async throws {
@@ -344,7 +357,8 @@ public actor InMemoryAccountDirectory: AccountDirectory {
                 let partner = Member(
                     id: other.user, name: profile?.displayName ?? "",
                     avatarColor: profile?.avatarColor ?? .yellow, tikeVariant: other.tikeVariant,
-                    username: profile?.username, isDeleted: profile?.deletedAt != nil)
+                    username: profile?.username, isDeleted: profile?.deletedAt != nil,
+                    paymentMethod: profile?.deletedAt == nil ? profile?.paymentMethod : nil)
                 return CruceLink(
                     id: ledger.id, partner: partner, myTikeVariant: mine.tikeVariant,
                     linkedAt: max(mine.joinedAt, other.joinedAt), closedAt: ledger.closedAt,

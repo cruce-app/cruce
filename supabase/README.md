@@ -86,6 +86,7 @@ Son pruebas [pgTAP](https://pgtap.org) en `supabase/tests/`. Cada archivo corre 
 | `07_vincular_cruces.sql` | Un solo cruce pendiente por persona, vista previa del código, el nombre al unirse, un cruce por pareja (también directo en la tabla), cruces con personas distintas, `my_cruces` (también con RLS) y el límite de intentos con la vista previa |
 | `08_movimientos.sql` | Movimientos desde la app (rol `authenticated`): los dos del cruce editan y eliminan (borrado suave), nadie anota a nombre de otro, un tercero no ve ni toca nada (ni poniendo de pagador a un miembro) y guardar dos veces el mismo `id` deja una sola fila |
 | `20_limpiar_invitaciones.sql` | La limpieza diaria: borra las invitaciones vencidas hace más de 30 días y los intentos de más de un día; conserva las vencidas recientes (siguen diciendo `expired`) y las canjeadas; quien tiene un cruce pendiente recibe un código nuevo para ese cruce; nadie la corre desde la app; el trabajo está en `cron.job` |
+| `21_como_pagarme.sql` | Cómo te pagan (Nequi o llave Bre-B): cada quien guarda y borra el suyo; Nequi y llave inválidos y uno sin el otro se rechazan; nadie más lo cambia; la pareja lo ve en `my_cruces` y los del parche en `participant_payment`; un extraño y `anon` no lo ven; al borrar la cuenta se borra |
 
 Para actuar como una persona, las pruebas usan `set local role authenticated` y fijan `request.jwt.claims` con su `sub`, que es lo que lee `auth.uid()`.
 

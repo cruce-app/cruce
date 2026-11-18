@@ -107,6 +107,9 @@ public enum CruceRemote {
         /// El @usuario del otro y si borró su cuenta (desde `20261030100000_usuarios`). Una base vieja no los trae.
         let partnerUsername: String?
         let partnerDeleted: Bool?
+        /// Cómo pagarle al otro (desde `20261118110000_como_pagarme`). Una base vieja no los trae.
+        let partnerPaymentKind: String?
+        let partnerPaymentHandle: String?
 
         enum CodingKeys: String, CodingKey {
             case ledgerId = "ledger_id"
@@ -121,6 +124,8 @@ public enum CruceRemote {
             case defaultOtherPercent = "default_other_percent"
             case partnerUsername = "partner_username"
             case partnerDeleted = "partner_deleted"
+            case partnerPaymentKind = "partner_payment_kind"
+            case partnerPaymentHandle = "partner_payment_handle"
         }
     }
 
@@ -140,7 +145,8 @@ public enum CruceRemote {
                 partner: Member(
                     id: row.partnerId, name: row.partnerName, avatarColor: row.partnerColor ?? row.partnerAvatar,
                     tikeVariant: row.partnerTike, username: row.partnerUsername,
-                    isDeleted: row.partnerDeleted ?? false),
+                    isDeleted: row.partnerDeleted ?? false,
+                    paymentMethod: PaymentMethod(storedKind: row.partnerPaymentKind, handle: row.partnerPaymentHandle)),
                 myTikeVariant: row.myTike, linkedAt: row.linkedAt,
                 closedAt: row.closedAt, defaultOtherPercent: row.defaultOtherPercent ?? CruceLink.standardOtherPercent)
         }

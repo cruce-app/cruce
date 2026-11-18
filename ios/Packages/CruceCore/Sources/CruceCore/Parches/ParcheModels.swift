@@ -59,11 +59,13 @@ public struct ParcheParticipant: Identifiable, Codable, Hashable, Sendable {
     /// Cuándo se borró la cuenta de quien tenía este lugar (`account_deleted_at`). El lugar se queda, con el nombre
     /// "Cuenta borrada", sus gastos y sus pagos; no tiene código `SOY-` y nadie lo reclama.
     public var accountDeletedAt: Date?
+    /// Cómo pagarle (`participant_payment`), solo si tiene la app y lo llenó en su perfil.
+    public var paymentMethod: PaymentMethod?
 
     public init(
         id: UUID = UUID(), userID: UUID? = nil, displayName: String, claimCode: String? = nil, joinedAt: Date,
         lastSeenAt: Date? = nil, avatarColor: AvatarColor = .yellow, username: String? = nil,
-        accountDeletedAt: Date? = nil
+        accountDeletedAt: Date? = nil, paymentMethod: PaymentMethod? = nil
     ) {
         self.id = id
         self.userID = userID
@@ -74,10 +76,12 @@ public struct ParcheParticipant: Identifiable, Codable, Hashable, Sendable {
         self.avatarColor = avatarColor
         self.username = username
         self.accountDeletedAt = accountDeletedAt
+        self.paymentMethod = paymentMethod
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, userID, displayName, claimCode, joinedAt, lastSeenAt, avatarColor, username, accountDeletedAt
+        case id, userID, displayName, claimCode, joinedAt, lastSeenAt, avatarColor, username, accountDeletedAt,
+            paymentMethod
     }
 
     /// Un participante guardado en el teléfono antes del color por persona no trae `avatarColor`: se lee amarillo.
@@ -92,6 +96,7 @@ public struct ParcheParticipant: Identifiable, Codable, Hashable, Sendable {
         avatarColor = try container.decodeIfPresent(AvatarColor.self, forKey: .avatarColor) ?? .yellow
         username = try container.decodeIfPresent(String.self, forKey: .username)
         accountDeletedAt = try container.decodeIfPresent(Date.self, forKey: .accountDeletedAt)
+        paymentMethod = try container.decodeIfPresent(PaymentMethod.self, forKey: .paymentMethod)
     }
 
     public var hasApp: Bool { userID != nil }

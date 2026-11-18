@@ -29,6 +29,11 @@ public enum MockData {
         username: "ana"
     )
 
+    /// "Cómo te pagan" de Jesús (el ejemplo de la spec): Nequi 300 123 4567.
+    public static let jesusNequi = PaymentMethod(kind: .nequi, handle: "3001234567")
+    /// "Cómo te pagan" de Joan: su llave Bre-B.
+    public static let joanKey = PaymentMethod(kind: .llave, handle: "@joan.rojas")
+
     /// El cruce de Joan y Jesús (el del canvas).
     public static let joanJesusCruceID = UUID(uuidString: "00000000-0000-0000-0000-0000000000C1")!
     /// El cruce de Joan y Ana, para probar varios cruces.

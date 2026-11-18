@@ -272,23 +272,31 @@ struct ParcheDetailView: View {
             } else {
                 ForEach(Array(transfers.enumerated()), id: \.offset) { index, transfer in
                     if index > 0 { CardDivider() }
-                    HStack(spacing: 10) {
-                        if let from = detail.participant(transfer.fromID) {
-                            ParcheAvatar(participant: from, size: 28)
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 10) {
+                            if let from = detail.participant(transfer.fromID) {
+                                ParcheAvatar(participant: from, size: 28)
+                            }
+                            Image(systemName: "arrow.right").font(.system(size: 12, weight: .black))
+                                .accessibilityHidden(true)
+                            if let to = detail.participant(transfer.toID) {
+                                ParcheAvatar(participant: to, size: 28)
+                            }
+                            Text(parches.phrase(for: transfer, in: detail))
+                                .font(.archivo(14, .extraBold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
                         }
-                        Image(systemName: "arrow.right").font(.system(size: 12, weight: .black))
-                            .accessibilityHidden(true)
-                        if let to = detail.participant(transfer.toID) {
-                            ParcheAvatar(participant: to, size: 28)
+                        .accessibilityElement(children: .combine)
+                        // Cómo pagarle a quien recibe, si llenó "Cómo te pagan".
+                        if let line = ParcheTicket.paymentLine(for: transfer, in: detail),
+                            let method = detail.participant(transfer.toID)?.paymentMethod
+                        {
+                            PaymentCopyRow(text: line, method: method, fontSize: 13)
                         }
-                        Text(parches.phrase(for: transfer, in: detail))
-                            .font(.archivo(14, .extraBold))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 11)
-                    .accessibilityElement(children: .combine)
                 }
             }
         }

@@ -39,6 +39,9 @@
         case parcheDeletedPlace
         /// "Editar movimiento": al editar no arranca ningún teclado (se abre al tocar la tarjeta del monto).
         case editMovement
+        /// "Cómo te pagan": Tu perfil con la llave de Joan, Saldar cuando Joan le debe a Jesús (con su Nequi), "Para
+        /// saldar" de "Santa Marta" y el ticket de Carlos con cómo pagarle a Jesús y a Joan.
+        case profilePayment, settlePayment, parchePaymentInfo, parcheTicketPayment
 
         /// Pantalla pedida con el argumento `-screen`, si la hay.
         static var current: DebugScreen? {
@@ -126,6 +129,27 @@
                 let stores = AppStores.sample(closedJesus: true)
                 stores.router.push(.cruce(MockData.joanJesusCruceID))
                 return stores
+            case .profilePayment:
+                var joan = MockData.joan
+                joan.paymentMethod = MockData.joanKey
+                let stores = AppStores.sample(viewer: joan)
+                stores.router.path = [.settings, .profile]
+                return stores
+            case .settlePayment:
+                let stores = AppStores.sample(
+                    movements: MockData.movements().filter { $0.payerID == MockData.jesus.id },
+                    partnerPayment: MockData.jesusNequi)
+                stores.router.path = [.settle]
+                return stores
+            case .parchePaymentInfo:
+                return stores(
+                    path: [.parche(MockParches.santaMartaID)], parcheBackend: MockParches.backend(withPayments: true))
+            case .parcheTicketPayment:
+                return stores(
+                    path: [
+                        .parche(MockParches.santaMartaID),
+                        .parcheTicket(parcheID: MockParches.santaMartaID, participantID: MockParches.carlos),
+                    ], parcheBackend: MockParches.backend(withPayments: true))
             case .parches: return stores(path: [.parches])
             case .parchesEmpty: return stores(path: [.parches], parcheBackend: InMemoryParcheBackend())
             case .parcheNew: return stores(path: [.newParche])
