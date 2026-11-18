@@ -2,7 +2,8 @@ import CruceCore
 import SwiftUI
 
 /// Avatar de una persona del parche, con su color fijo (el de su perfil, o el que recibió al entrar sin la app). Quien no
-/// tiene la app lleva el borde punteado (además del texto "(sin la app)", nunca solo por el estilo); una cuenta borrada, no.
+/// tiene la app lleva el borde punteado (además del texto "(sin la app)", nunca solo por el estilo); una cuenta borrada, no,
+/// pero va en gris.
 struct ParcheAvatar: View {
     let participant: ParcheParticipant
     var size: CGFloat = 36
@@ -12,7 +13,7 @@ struct ParcheAvatar: View {
             .font(.archivo(size * 0.36, .black))
             .foregroundStyle(CruceColor.ink)
             .frame(width: size, height: size)
-            .background(Circle().fill(participant.avatarColor.color))
+            .background(Circle().fill(participant.displayColor))
             .overlay(
                 Circle().strokeBorder(
                     CruceColor.ink,

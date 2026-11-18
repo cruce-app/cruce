@@ -104,8 +104,8 @@ struct MovementDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Cómo se repartió").textStyle(.fieldLabel)
                     SplitBar(
-                        leftName: payer.name, leftAmount: movement.payerShare, leftColor: payer.avatarColor.color,
-                        rightName: other.name, rightAmount: movement.owedByOther, rightColor: other.avatarColor.color
+                        leftName: payer.name, leftAmount: movement.payerShare, leftColor: payer.displayColor,
+                        rightName: other.name, rightAmount: movement.owedByOther, rightColor: other.displayColor
                     )
                 }
             }
