@@ -63,7 +63,7 @@ Es un movimiento más (`kind = settlement`, reparto "todo es del otro"): quien d
 ### Usuarios, cuenta y montos (cambios `usuarios-y-cuenta` y `teclado-de-montos`, 30 oct 2026)
 
 - **@usuario único:** cada persona tiene uno, de 3 a 20 caracteres (minúsculas, números, `.` y `_`) y único sin importar mayúsculas (`profiles.username`). Se elige al entrar, en un paso después del nombre ("Elige tu @usuario", con una sugerencia hecha desde el nombre), y se cambia en Tu perfil. Se ve en la vista previa del código (`Cuenta de Joan · @joan`), en Tus cruces y en "Los del parche". La app identifica a las personas por `id`, nunca por el nombre ni el @usuario. A los perfiles que ya existían se les asignó uno desde su nombre (con un número si chocaba).
-- **Borrar la cuenta** (Tu perfil → "Borrar mi cuenta"): `delete_my_account()` borra el usuario de `auth.users` y el trigger `forget_account` deja el perfil como lápida ("Cuenta borrada", sin @usuario, color ni correo, con `deleted_at`). Sus cruces se cierran y la otra persona conserva el historial; en los parches su lugar y sus gastos quedan como "Cuenta borrada" y ningún saldo cambia. El @usuario queda libre de inmediato; si vuelve con el mismo correo es una cuenta nueva y nada se reconecta.
+- **Borrar la cuenta** (Tu perfil → "Borrar mi cuenta"): `delete_my_account()` borra el usuario de `auth.users` y el trigger `forget_account` deja el perfil como lápida ("Cuenta borrada", sin @usuario, color ni correo, con `deleted_at`). Sus cruces se cierran y la otra persona conserva el historial; en los parches su lugar y sus gastos quedan como "Cuenta borrada" y ningún saldo cambia. Una cuenta borrada se ve en gris, apagada (`displayColor`), en el cruce y en el parche. Un pago a su lugar cuenta como confirmado: los que estaban por confirmar se confirman al borrarla (`20261117100000`) y uno nuevo al anotarlo, porque nadie más los puede confirmar. El @usuario queda libre de inmediato; si vuelve con el mismo correo es una cuenta nueva y nada se reconecta.
 - **Intentos fallidos:** `join_parche` y `claim_parche_place` cuentan los intentos fallidos en el mismo límite de 5 por hora que `preview_parche_code` y `CRZ-` (devuelven null en vez de lanzar el error, para que el intento quede guardado; al sexto, `tooManyAttempts`).
 - **Teclado de montos:** el monto principal (la tarjeta amarilla de arriba) se escribe con el teclado de Cruce, acoplado abajo como un teclado, en Nuevo movimiento, Anotar un pago del parche y Anotar o editar un gasto del parche; los montos secundarios (cada pagador, cada ítem, la propina) usan el del sistema. Al anotar algo nuevo el monto arranca activo; al editar, ninguno. Tocar la tarjeta abre el de Cruce, otro campo abre el del sistema y el espacio vacío cierra los dos. "Cambiar monto" en Saldar sigue en una hoja.
 
@@ -172,9 +172,10 @@ cruce/
 │   │                         20261029140000_codigos.sql, 20261029150000_items_con_nombre.sql y
 │   │                         20261029160000_parches_sin_ambiguedad.sql; y las del 30 oct (en local, testing y prod):
 │   │                         20261030100000_usuarios.sql, 20261030110000_borrar_cuenta.sql,
-│   │                         20261030120000_intentos_parche.sql y 20261030130000_cuenta_borrada_guardas.sql
+│   │                         20261030120000_intentos_parche.sql y 20261030130000_cuenta_borrada_guardas.sql; y la del 17 nov (solo en local):
+│   │                         20261117100000_pagos_cuenta_borrada.sql
 │   ├── ambientes.env         Identificador del proyecto de testing y de prod
-│   └── tests/                Pruebas pgTAP (01_saldo a 18_cuenta_borrada_sin_sesion)
+│   └── tests/                Pruebas pgTAP (01_saldo a 19_pagos_cuenta_borrada)
 ├── openspec/                 Registro de specs y cambios (OpenSpec, ver §9)
 │   ├── config.yaml           Esquema spec-driven, artefactos en español
 │   ├── specs/                Cómo se comporta la app hoy (fuente de verdad)
@@ -232,7 +233,7 @@ curl localhost:8080/healthz
 ```bash
 supabase start                 # levanta Postgres, Auth y Realtime en Docker (config.toml ya está en el repo)
 supabase db reset --local      # aplica supabase/migrations
-supabase test db --local       # 477 pruebas pgTAP de supabase/tests (18 archivos)
+supabase test db --local       # 484 pruebas pgTAP de supabase/tests (19 archivos)
 ```
 - **Siempre con `--local`:** `scripts/db-push.sh` y `scripts/backup-db.sh` dejan el CLI vinculado al proyecto de la nube que nombraste (testing o prod). Nunca corras `supabase db reset`, `db push` ni `link` a mano contra la nube.
 
@@ -456,7 +457,7 @@ Otro iPhone ───┘  (Auth · Postgres ·    └─ Realtime ─► los dos
 - **Enlaces con un código:** solo el esquema propio (`cruce-dev://`, `cruce-test://`, `cruce://`), que solo abre la app si está instalada; el enlace universal (`https://`) necesita la membresía de Apple y un dominio (CP13).
 - **Usuarios y cuenta sin probar en la nube (30 oct 2026):** las migraciones `20261030100000` a `20261030130000` están aplicadas en local, testing y prod, pero la app nueva todavía no se ha probado en "Cruce Test". La sesión de una cuenta borrada sigue viva hasta una hora, pero `require_session()` y un trigger en `ledger_members` (`20261030130000`) la rechazan con `accountDeleted`. `20261030110000_borrar_cuenta.sql` quita `profiles_id_fkey` (el perfil queda como lápida para que los movimientos y saldos sigan válidos) y crea un trigger `before delete` en `auth.users` (`forget_account`): en la nube se creó sin errores de permisos, pero falta borrar una cuenta de prueba en "Cruce Test" para confirmarlo.
 - **Versiones anteriores y los códigos de parche:** `join_parche` y `claim_parche_place` ahora devuelven null con un código que no sirve (antes lanzaban `invalidCode`); una versión anterior lo muestra como un error genérico. Pasa poco, porque esas versiones revisan antes el código con `preview_parche_code`.
-- **Teclado de montos:** ahora acepta hasta 12 dígitos en todos los montos principales (antes, Nuevo movimiento cortaba en 9), igual que `Money.parse`.
+- **Tope de los montos:** 9 dígitos ($999.999.999) en todos los montos, con el teclado de Cruce y con el del sistema (`Money.maxDigits`, decisión del 17 nov 2026). Antes la lectura de montos aceptaba 12.
 - **Exportar CSV:** Ajustes del cruce escribe el archivo en `tmp/Exportar/` y lo comparte con `ShareLink` y su URL. Con un `Transferable` (`FileRepresentation`), "Guardar en Archivos" fallaba en el simulador.
 - **No implementado todavía:** el switch de notificaciones (CP9), "Recordarme saldar" (CP10) y el deslizar para volver con la barra de navegación oculta.
 
