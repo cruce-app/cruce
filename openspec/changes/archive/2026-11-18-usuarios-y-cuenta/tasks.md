@@ -27,7 +27,7 @@
 ## 5. Verificación
 
 - [x] 5.1 `supabase db reset --local`, `supabase test db --local`, `swift test`, `swift format lint --strict`, `xcodebuild`
-- [ ] 5.2 Simulador: registro con @usuario, cambiarlo, verlo en la vista previa; borrar una cuenta con cruce y parche y ver "Cuenta borrada" desde la otra; intentos con `PCH-`/`SOY-` (hecho contra Supabase local por la API y con las pantallas `-screen`; falta tocarlo en el simulador con la sesión real)
+- [x] 5.2 Simulador (18 nov 2026: Joan y Jesús lo probaron en "Cruce Test" con la sesión real, sin encontrar errores): registro con @usuario, cambiarlo, verlo en la vista previa; borrar una cuenta con cruce y parche y ver "Cuenta borrada" desde la otra; intentos con `PCH-`/`SOY-` (hecho contra Supabase local por la API y con las pantallas `-screen`; falta tocarlo en el simulador con la sesión real)
 - [x] 5.3 Rechazo de pasar al cruce en la Actividad de quien lo propuso (S6)
 
 ## 6. Decisiones del 17 nov 2026

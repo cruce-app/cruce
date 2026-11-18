@@ -24,8 +24,12 @@ Los montos SHALL mostrarse con el signo `$` y punto como separador de miles, sin
 - **THEN** se ven `+$18.000` y `−$50.000`, con el carácter U+2212 en el segundo
 
 ### Requirement: Captura de montos desde el teclado
-El monto escrito en el teclado numérico SHALL convertirse a pesos ignorando cualquier carácter que no sea un dígito y aceptando como máximo 12 dígitos. Una entrada vacía MUST equivaler a $0.
+El monto escrito en el teclado numérico SHALL convertirse a pesos ignorando cualquier carácter que no sea un dígito y aceptando como máximo 9 dígitos ($999.999.999); los dígitos de más MUST ignorarse. Una entrada vacía MUST equivaler a $0.
 
 #### Scenario: Escribir un monto
 - **WHEN** se escribe "6" y luego "000" en el teclado de monto
 - **THEN** el monto mostrado es `$6.000`
+
+#### Scenario: Un cero de más
+- **WHEN** se pega "$1.000.000.000" en un monto
+- **THEN** el monto es `$100.000.000`: solo cuentan los primeros 9 dígitos

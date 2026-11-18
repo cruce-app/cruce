@@ -49,7 +49,7 @@
   - `ios/README.md`.
   
   Verificar que las frases que decían "en memoria hasta el CP5" ya no quedan (`rg -n "hasta el CP5" CLAUDE.md ios/README.md`).
-- [ ] 4.3 Suite completa: `swift test`, el lint, el backend, `supabase test db` y `xcodebuild` de los tres esquemas. Después, en testing (sin migraciones nuevas), Joan y Jesús anotan cada uno un gasto y, al recargar, los dos ven el mismo saldo.
+- [x] 4.3 Suite completa: `swift test`, el lint, el backend, `supabase test db` y `xcodebuild` de los tres esquemas (18 nov 2026: 377 de Swift, 484 pgTAP, los tres esquemas compilan; Joan y Jesús lo probaron en "Cruce Test" sin encontrar errores). Después, en testing (sin migraciones nuevas), Joan y Jesús anotan cada uno un gasto y, al recargar, los dos ven el mismo saldo.
 
 ## Workflow follow-up
 

@@ -56,10 +56,10 @@ Joan los deja para cuando la app se abra a más personas:
 - [x] Ajustes de la cuenta y Ajustes del cruce (D3); detalle del parche más corto con la hoja de "Los del parche" y la actividad aparte; llegada con `PCH-` y `SOY-`; cruces cerrados en "Cerrados"; el cruce abierto desde la lista no repite "Tus parches" (D8).
 - [x] Un solo aviso sin conexión y "Sin enviar"; ítems con nombre (pgTAP `14_items`); formas de reparto con ejemplo; deshacer al borrar un gasto (5 s); espera de 30 s para pedir otro código; enlace `SOY-` en el ticket.
 - [x] 15 espacios de ilustración (`il-09` a `il-21`) con respaldo a la ilustración de antes.
-- [ ] Recorrido en el simulador de los flujos pedidos (tarea 5.1 del cambio).
+- [x] Recorrido de los flujos pedidos (tarea 5.1 del cambio): lo hicieron Joan y Jesús en "Cruce Test" el 18 nov 2026.
 - [x] Subir las siete migraciones a testing y a prod con `scripts/db-push.sh` (30 oct 2026).
-- [ ] Probar la app en "Cruce Test" con Joan, Jesús y una tercera cuenta.
-- [ ] Probar `usuarios-y-cuenta` y `teclado-de-montos` en "Cruce Test": elegir y cambiar el @usuario, borrar una cuenta de prueba (también una que esté en un parche) y anotar montos con el teclado acoplado.
+- [x] Probar la app en "Cruce Test" con Joan, Jesús y una tercera cuenta (18 nov 2026, sin errores).
+- [x] Probar `usuarios-y-cuenta` y `teclado-de-montos` en "Cruce Test" (18 nov 2026, sin errores): elegir y cambiar el @usuario, borrar una cuenta de prueba (también una que esté en un parche) y anotar montos con el teclado acoplado.
 - [x] Agregar las imágenes de `il-09` a `il-21` (PNG @2x y @3x), el 30 oct 2026.
 
 **Límites conocidos:** con una versión anterior de la app, lo que se pasa al cruce queda "por confirmar" hasta que alguien con la versión nueva lo acepte, y editar un gasto con ítems con nombre los guarda sin nombre. El enlace universal (`https://`) queda para el CP13. "Cómo pagarle a cada quien" e "Intentos con códigos de parche" están en las decisiones abiertas.
@@ -132,7 +132,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 **Hecho cuando:** con dos simuladores, uno invita, el otro se une y los dos llegan al inicio vacío.
 
 ## CP4b · Varios cruces
-*Hecho en local en el cambio `varios-cruces` (27 oct 2026). "¿Lo pasas a tu cruce?" ya ofrecía el cruce con cada persona desde los parches; la deuda que se pasa se verá en el cruce cuando los movimientos estén en Supabase (CP5). Falta probarlo en testing con una tercera cuenta.*
+*Hecho en local en el cambio `varios-cruces` (27 oct 2026). "¿Lo pasas a tu cruce?" ya ofrecía el cruce con cada persona desde los parches; la deuda que se pasa se verá en el cruce cuando los movimientos estén en Supabase (CP5). Probado en "Cruce Test" el 18 nov 2026, sin errores.*
 - [x] La sesión conoce todos los cruces de quien entró (con quién, colores y recibo de cada uno), no un solo `partner`.
 - [x] El inicio: con un cruce, ese cruce (el diseño actual); con dos o más, "Tus cruces" con el saldo de cada uno, y al tocar uno se abre su inicio.
 - [x] "Invitar a alguien" desde el inicio y desde Ajustes crea un cruce nuevo con su código `CRZ-`; "Tengo un código" también acepta `CRZ-`.
@@ -143,7 +143,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 **Hecho cuando:** Joan tiene un cruce con Jesús y otro con una tercera cuenta, ve los dos en "Tus cruces" con su saldo, y lo que anota en uno no aparece en el otro.
 
 ## CP5 · Movimientos contra Supabase
-*Hecho en local en el cambio `movimientos-supabase` (27 oct 2026): también deslizar para recargar, recarga al volver a la app y la deuda de los parches en el cruce. Falta probarlo en testing con Joan y Jesús. Lo no guardado sin conexión se pierde al recargar hasta el CP7.*
+*Hecho en local en el cambio `movimientos-supabase` (27 oct 2026): también deslizar para recargar, recarga al volver a la app y la deuda de los parches en el cruce. Probado en "Cruce Test" el 18 nov 2026, sin errores. Lo no guardado sin conexión se pierde al recargar hasta el CP7.*
 - [x] `SupabaseLedgerRepository: LedgerRepository` con cargar, guardar (insert/update) y eliminar (borrado suave), siempre sobre el cruce abierto.
 - [x] Mapeo de `SplitRule` ↔ `split_type` + `other_share_percent`, y de `Movement.Kind` ↔ `kind`.
 - [x] El saldo se sigue calculando en la app; agregar una verificación en debug contra `ledger_balances`.
@@ -153,7 +153,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 **Hecho cuando:** lo que anota uno aparece en el otro al recargar, y el saldo coincide en los dos.
 
 ## CP6 · Tiempo real
-*Hecho en local en el cambio `tiempo-real` (27 oct 2026): un canal de Realtime por cruce y cambios aplicados por `id`. Falta probarlo en testing.*
+*Hecho en local en el cambio `tiempo-real` (27 oct 2026): un canal de Realtime por cruce y cambios aplicados por `id`. Probado en "Cruce Test" el 18 nov 2026, sin errores.*
 - [x] Suscripción a `movements` del ledger (insert, update y delete suave).
 - [x] `LedgerStore` aplica los cambios sin recargar todo y sin duplicados.
 - [x] Reconexión cuando la app vuelve al primer plano.
@@ -161,7 +161,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 **Hecho cuando:** si Jesús anota un gasto, el inicio de Joan cambia en segundos sin tocar nada.
 
 ## CP7 · Modo sin conexión
-*Hecho en local en el cambio `sin-conexion` (27 oct 2026), con archivo JSON en el teléfono. También abre la app sin red (la sesión se guarda en `sesion.json`). Falta probarlo en testing con modo avión.*
+*Hecho en local en el cambio `sin-conexion` (27 oct 2026), con archivo JSON en el teléfono. También abre la app sin red (la sesión se guarda en `sesion.json`). Probado en "Cruce Test" el 18 nov 2026, sin errores, también en modo avión.*
 - [x] Detectar la red con `NWPathMonitor`; `LedgerStore.isOffline` refleja la realidad.
 - [x] Persistencia local de los movimientos (según la decisión abierta) y cola de pendientes.
 - [x] Reintentar automáticamente al volver la red; "Reintentar" en `OfflineView` fuerza el envío.
@@ -195,7 +195,7 @@ Diferencias vistas en el recorrido del CP0 (punto de partida, no la lista comple
 **Hecho cuando:** las dos tareas corren solas y dejan un registro.
 
 ## CP11 · Funciones pendientes de la interfaz
-*Hecho en el cambio `funciones-pendientes` (27 oct 2026): probado en local y con la migración aplicada en testing; falta probar las pantallas en "Cruce Test". Quedan sin acción el switch de notificaciones (CP9) y "Recordarme saldar" (CP10).*
+*Hecho en el cambio `funciones-pendientes` (27 oct 2026): probado en local y con la migración aplicada en testing; probado en "Cruce Test" el 18 nov 2026, sin errores. Quedan sin acción el switch de notificaciones (CP9) y "Recordarme saldar" (CP10).*
 - [x] "Cambiar monto" en Saldar (pago parcial), según la decisión abierta.
 - [x] Exportar el historial a CSV (ShareLink con el archivo).
 - [x] Desvincular a la otra persona, con confirmación y explicación de qué pasa con el historial.

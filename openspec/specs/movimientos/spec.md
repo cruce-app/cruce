@@ -65,3 +65,93 @@ En el historial, deslizar una fila hacia la izquierda SHALL mostrar "Eliminar". 
 #### Scenario: Cancelar
 - **WHEN** Joan desliza una fila, toca "Eliminar" y luego cancela
 - **THEN** el movimiento sigue en el historial
+
+### Requirement: Los movimientos se guardan en la nube
+Anotar, editar, eliminar (borrado suave) y saldar SHALL guardarse en la base de datos del cruce abierto. Al recargar, la otra persona del cruce SHALL ver los mismos movimientos y el mismo saldo. Los movimientos MUST seguir ahí después de cerrar y abrir la app.
+
+#### Scenario: Joan anota y Jesús recarga
+- **WHEN** Joan anota una cena de $60.000 a medias en su cruce con Jesús, y Jesús recarga su inicio
+- **THEN** Jesús ve la cena y "Le debes $30.000 a Joan", y Joan ve "Jesús te debe $30.000"
+
+#### Scenario: Cerrar y abrir la app
+- **WHEN** Joan anota un gasto, cierra la app y la vuelve a abrir
+- **THEN** el gasto sigue en su historial
+
+#### Scenario: Eliminar se ve en los dos
+- **WHEN** Jesús elimina un gasto que anotó Joan y Joan recarga
+- **THEN** el gasto ya no cuenta en el saldo de ninguno de los dos
+
+### Requirement: Recargar los movimientos
+El inicio de un cruce y "Tus cruces" SHALL recargar los movimientos al deslizar hacia abajo. La app SHALL recargarlos también al volver al primer plano.
+
+#### Scenario: Deslizar para recargar
+- **WHEN** Jesús desliza hacia abajo en su inicio después de que Joan anotó un gasto
+- **THEN** el gasto aparece y el saldo se actualiza
+
+### Requirement: Guardar no duplica
+Guardar el mismo movimiento más de una vez (por ejemplo, al reintentar después de un error de red) MUST dejar un solo movimiento en la base.
+
+#### Scenario: Reintento
+- **WHEN** la app guarda un gasto y vuelve a guardarlo con el mismo identificador
+- **THEN** la base tiene un solo movimiento con esos datos
+
+### Requirement: La deuda de un parche se ve en el cruce
+El movimiento que crea "pasar al cruce" al cerrar un parche SHALL aparecer en el historial y en el saldo del cruce de esas dos personas.
+
+#### Scenario: Pasar la deuda de un parche
+- **WHEN** al cerrar el parche Santa Marta, Joan pasa a su cruce con Jesús los $47.000 que Jesús le debe
+- **THEN** el cruce de Joan y Jesús muestra el movimiento "Parche Santa Marta" y el saldo cambia en $47.000
+
+### Requirement: Los cambios de la otra persona aparecen solos
+Mientras la app está abierta, un movimiento que la otra persona anota, edita o elimina en un cruce SHALL aparecer en el historial y el saldo de ese cruce en pocos segundos, sin deslizar para recargar. Aplicar un cambio MUST NOT duplicar un movimiento que ya estaba.
+
+#### Scenario: Jesús anota mientras Joan mira
+- **WHEN** Joan tiene abierto el inicio de su cruce con Jesús y Jesús anota un mercado de $100.000 a medias
+- **THEN** en menos de 10 segundos el inicio de Joan muestra el mercado y el saldo cambia en $50.000, sin tocar nada
+
+#### Scenario: Eco de lo propio
+- **WHEN** Joan anota un gasto y le llega el cambio de ese mismo gasto
+- **THEN** el gasto aparece una sola vez
+
+#### Scenario: Borrado de la otra persona
+- **WHEN** Jesús elimina un gasto mientras Joan mira su inicio
+- **THEN** el gasto deja de contar en el saldo de Joan sin recargar
+
+### Requirement: Reconectar al volver
+Al volver la app al primer plano, la app SHALL recargar los movimientos y volver a escuchar los cambios de cada cruce.
+
+#### Scenario: Volver a la app
+- **WHEN** Joan deja la app en segundo plano, Jesús anota un gasto y Joan vuelve a la app
+- **THEN** Joan ve el gasto y los cambios siguientes aparecen solos
+
+### Requirement: Anotar sin conexión
+Sin red, anotar, editar, eliminar y saldar SHALL cambiar el cruce en el teléfono y quedar en una cola de pendientes guardada en el teléfono. La app SHALL mostrar que está sin conexión y cuántos movimientos faltan por enviar.
+
+#### Scenario: Modo avión
+- **WHEN** Joan, en modo avión, anota una cena de $60.000 a medias
+- **THEN** la cena aparece en su inicio con "Jesús te debe $30.000", la app dice "Sin conexión" y hay 1 movimiento pendiente por sincronizar
+
+### Requirement: Enviar lo pendiente al volver la red
+Al volver la red, la app SHALL enviar sola la cola de pendientes, en el orden en que se hicieron. "Reintentar" SHALL enviarla también. Lo enviado MUST NOT duplicarse en la base, y lo pendiente MUST NOT desaparecer de la pantalla mientras no se haya enviado.
+
+#### Scenario: Vuelve la red
+- **WHEN** Joan anotó dos gastos en modo avión y vuelve la red
+- **THEN** los dos gastos llegan a la base una sola vez, el contador de pendientes vuelve a 0 y Jesús los ve
+
+#### Scenario: Recargar sin red
+- **WHEN** Joan desliza para recargar mientras sigue sin red
+- **THEN** los gastos pendientes siguen en su inicio
+
+### Requirement: Abrir la app sin red
+La app SHALL guardar en el teléfono los movimientos de cada cruce y la cola de pendientes. Al abrir la app sin red, SHALL mostrar lo último guardado; los pendientes MUST seguir en la cola para enviarse después.
+
+#### Scenario: Cerrar y abrir sin red
+- **WHEN** Joan anota un gasto sin red, cierra la app y la vuelve a abrir todavía sin red
+- **THEN** ve sus movimientos y el gasto pendiente, y cuando vuelve la red el gasto se envía
+
+### Requirement: Lo guardado en el teléfono es de quien entró
+Cerrar sesión SHALL borrar del teléfono los movimientos y la cola guardados. La app MUST NOT mostrarle a una persona lo guardado de otra.
+
+#### Scenario: Otra persona entra en el mismo iPhone
+- **WHEN** Joan cierra sesión y Jesús entra en ese iPhone
+- **THEN** Jesús no ve los movimientos que Joan tenía guardados en el teléfono

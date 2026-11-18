@@ -57,7 +57,7 @@
   - `ios/README.md`.
   
   Verificar que `rg -n "Pronto vas a poder" ios` no encuentra nada.
-- [ ] 4.3 Suite completa: `swift test`, el lint, el backend, `supabase test db` (sobre una base limpia) y `xcodebuild` de los tres esquemas. Después Joan y Jesús prueban en "Cruce Test": cada uno invita o se une con una tercera cuenta y ve "Tus cruces".
+- [x] 4.3 Suite completa: `swift test`, el lint, el backend, `supabase test db` (sobre una base limpia) y `xcodebuild` de los tres esquemas (18 nov 2026: 377 de Swift, 484 pgTAP, los tres esquemas compilan; Joan y Jesús lo probaron en "Cruce Test" sin encontrar errores). Después Joan y Jesús prueban en "Cruce Test": cada uno invita o se une con una tercera cuenta y ve "Tus cruces".
 
 ## Workflow follow-up
 
