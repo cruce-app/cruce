@@ -86,9 +86,7 @@ jobs:
           version: 2.122.0
       # config.toml firma los tokens con supabase/signing_keys.json, que no está en git: se genera una clave de prueba.
       - name: clave de firma
-        run: |
-          echo '[]' > supabase/signing_keys.json
-          supabase gen signing-key --algorithm ES256 --yes
+        run: scripts/llave-local.sh
       # Solo Postgres y Auth: las pruebas pgTAP hablan SQL y no usan la API HTTP.
       - name: supabase start
         run: supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor,postgrest,kong

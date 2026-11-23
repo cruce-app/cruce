@@ -57,6 +57,7 @@ for pair in Dev:DEV Test:TEST; do name=${pair%%:*}; label=${pair##*:}; magick -s
 Se entra con un código de 6 dígitos que llega al correo, sin contraseña. En local el correo no sale: lo atrapa mailpit.
 
 ```bash
+scripts/llave-local.sh   # una vez por Mac: sin la clave de firma local, supabase start no arranca
 supabase start -x storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor   # sin excluir mailpit ni realtime
 ```
 

@@ -26,6 +26,7 @@ Base de datos, inicio de sesión y tiempo real.
 Con la [CLI de Supabase](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`) y Docker Desktop abierto:
 
 ```bash
+scripts/llave-local.sh   # una vez por Mac: la clave de firma local (ver "MCP de Cruce" abajo)
 supabase start           # base local con Docker (la primera vez descarga varias imágenes)
 supabase db reset        # aplica las migraciones en local
 supabase test db         # corre las pruebas de supabase/tests
@@ -75,11 +76,10 @@ Cada proyecto tiene su propia contraseña de la base: la pide el CLI, o la lee d
 
 Claude se conecta a Cruce con el servidor MCP de `supabase/functions/mcp/` (cambio `mcp-cruce`). Cada herramienta corre con el token de la persona que aprobó el acceso, así que RLS decide qué ve y qué anota, igual que en la app.
 
-**Clave de firma en local (una sola vez por Mac).** `@supabase/server` solo acepta tokens firmados con una clave asimétrica (ES256 o RS256), y `config.toml` la lee de `supabase/signing_keys.json`, que está en `.gitignore` y nunca se sube. Desde la raíz del repo:
+**Clave de firma en local (una sola vez por Mac).** `@supabase/server` solo acepta tokens firmados con una clave asimétrica (ES256 o RS256), y `config.toml` la lee de `supabase/signing_keys.json`, que está en `.gitignore` y nunca se sube. Sin el archivo, `supabase start` no arranca. Desde la raíz del repo:
 
 ```bash
-echo '[]' > supabase/signing_keys.json                 # el CLI necesita que el archivo exista
-supabase gen signing-key --algorithm ES256 --yes       # agrega la clave privada al archivo
+scripts/llave-local.sh                                 # crea el archivo con una clave ES256 (si ya hay una, no la cambia)
 supabase stop && supabase start                        # Auth y PostgREST firman y verifican con ella
 ```
 

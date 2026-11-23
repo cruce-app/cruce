@@ -246,6 +246,7 @@ curl localhost:8080/healthz
 
 ### Supabase (local)
 ```bash
+scripts/llave-local.sh         # una vez por Mac: crea la clave ES256 que config.toml necesita (sin ella no arranca)
 supabase start                 # levanta Postgres, Auth y Realtime en Docker (config.toml ya está en el repo)
 supabase db reset --local      # aplica supabase/migrations
 supabase test db --local       # 553 pruebas pgTAP de supabase/tests (22 archivos)
@@ -253,12 +254,7 @@ supabase test db --local       # 553 pruebas pgTAP de supabase/tests (22 archivo
 - **Siempre con `--local`:** `scripts/db-push.sh` y `scripts/backup-db.sh` dejan el CLI vinculado al proyecto de la nube que nombraste (testing o prod). Nunca corras `supabase db reset`, `db push` ni `link` a mano contra la nube.
 
 ### Servidor MCP (Claude)
-Necesita Supabase local con la clave de firma ES256: `@supabase/server` rechaza los tokens HS256. Una sola vez por Mac, desde la raíz del repo:
-```bash
-echo '[]' > supabase/signing_keys.json             # el CLI necesita que el archivo exista
-supabase gen signing-key --algorithm ES256 --yes   # agrega la clave (el archivo está en .gitignore)
-supabase stop && supabase start
-```
+Necesita Supabase local con la clave de firma ES256 (`scripts/llave-local.sh`, ver "Supabase (local)"): `@supabase/server` rechaza los tokens HS256. Si Supabase ya estaba prendido cuando creaste la clave: `supabase stop && supabase start`.
 - Con la clave ES256 la `ANON_KEY` local cambia y la HS256 vieja deja de servir: Joan copia la nueva (`supabase status -o env`) en `SUPABASE_ANON_KEY[config=Debug]` de `ios/Config.xcconfig`, o la app en Debug no entra.
 - La función la sirve `supabase start` en `http://127.0.0.1:54321/functions/v1/mcp`; si no toma un cambio, `docker restart supabase_edge_runtime_cruce`.
 ```bash
