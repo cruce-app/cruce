@@ -34,6 +34,11 @@
 - [x] 5.2 `scripts/functions-deploy.sh testing|prod` (como `db-push.sh`: prod pide confirmación y no se usa `supabase link` a mano). Se verifica con `bash -n` y con una corrida en seco que imprime el comando
 - [x] 5.3 Documentación: `CLAUDE.md` (§2, §3, §4, §6 y §8), `supabase/README.md` (OAuth, claves de firma, la función y su despliegue), `backend/README.md` (rutas y variables nuevas, y la app de prod) y `docs/ROADMAP.md`
 
+## 7. Límite del token de Claude
+
+- [x] 7.1 Migración `20261123100000_limitar_tokens_oauth.sql`: pre-request de PostgREST para tokens con `client_id` (lecturas, anotar gastos, `my_cruces` y `parche_summary`, y sesión viva), trigger de `movements` (solo gastos) y trigger de `auth.users` (sin contraseñas). Se verifica con `23_limitar_tokens_oauth.sql` y con `scripts/mcp-local.sh` usando un token OAuth de verdad
+- [x] 7.2 El consentimiento dice "Al permitir, vuelves a <sitio>." y no deja aprobar sin una dirección de regreso válida. Se verifica con `go test` y en el navegador con un cliente registrado como "Claude" que vuelve a `evil.example`
+
 ## 6. Nube (con Joan)
 
 - [ ] 6.1 Testing: claves asimétricas en el panel (y la app de iOS sigue entrando), servidor OAuth con registro automático, Site URL `https://cruce-api-testing.fly.dev`, `scripts/db-push.sh testing`, `scripts/functions-deploy.sh testing` y `fly deploy -a cruce-api-testing` con `SUPABASE_ANON_KEY`. Se verifica con el 401 de la función y con la página de consentimiento abierta

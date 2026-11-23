@@ -76,6 +76,8 @@ Cada proyecto tiene su propia contraseña de la base: la pide el CLI, o la lee d
 
 Claude se conecta a Cruce con el servidor MCP de `supabase/functions/mcp/` (cambio `mcp-cruce`). Cada herramienta corre con el token de la persona que aprobó el acceso, así que RLS decide qué ve y qué anota, igual que en la app.
 
+**El límite del token de Claude** (`20261123100000_limitar_tokens_oauth.sql`). Ese token es una sesión completa de la persona, así que la base lo limita: con `client_id`, PostgREST solo deja leer, anotar gastos en `movements` y llamar a `my_cruces` y `parche_summary`; quitar el acceso borra la sesión y el token deja de servir de inmediato; y nadie le puede poner ni cambiar la contraseña a una cuenta (Cruce no las usa). `scripts/mcp-local.sh` lo prueba con un token OAuth de verdad.
+
 **Clave de firma en local (una sola vez por Mac).** `@supabase/server` solo acepta tokens firmados con una clave asimétrica (ES256 o RS256), y `config.toml` la lee de `supabase/signing_keys.json`, que está en `.gitignore` y nunca se sube. Sin el archivo, `supabase start` no arranca. Desde la raíz del repo:
 
 ```bash

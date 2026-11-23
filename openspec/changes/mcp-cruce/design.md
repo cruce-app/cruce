@@ -134,13 +134,32 @@ La herramienta lleva `readOnlyHint: false` y `destructiveHint: false`; las de le
 ### D9. Pruebas
 - **Deno** (`deno test`): pesos, frases, validación de anotar, el mapeo del reparto y de la categoría, y cada
   herramienta con un cliente de Supabase falso.
-- **pgTAP:** `parche_summary`.
+- **pgTAP:** `parche_summary` y el límite de los tokens (`23_limitar_tokens_oauth.sql`).
 - **Go** (`go test`): las dos rutas devuelven HTML con CSP, la configuración pública y nunca la `service_role`.
 - **Recorrido local** (`scripts/mcp-local.sh`): entra con un usuario de prueba por la API (código de mailpit), llama a
   la función con JSON-RPC y revisa el 401 sin token, `tools/list`, `ver_cruces` y `anotar_gasto` (también en un cruce
-  cerrado).
+  cerrado). Al final conecta un cliente OAuth de verdad y revisa el límite del token y quitar el acceso.
 - **A mano:** Claude Code contra local (`claude mcp add --transport http …`, que admite el callback en loopback), el
   servidor de ejemplo `basic-host` de ext-apps para las pantallas, y Claude web y escritorio contra testing.
+
+### D10. Límite del token de una aplicación conectada
+El token que Supabase Auth emite por OAuth es una sesión completa de la persona (con el claim `client_id`): probado en
+local, sirve para editar el perfil por PostgREST, para ponerle una contraseña a la cuenta y entrar con ella, y sigue
+sirviendo contra PostgREST después de quitar el acceso. Cambiar `aud` con el custom access token hook no lo limita:
+Auth, PostgREST y la función lo aceptan igual. Por eso, en la base (`20261123100000_limitar_tokens_oauth.sql`):
+- **Pre-request de PostgREST** (`oauth_request_guard`, en `pgrst.db_pre_request`): con `client_id`, solo GET, HEAD,
+  POST a `movements` y a `rpc/my_cruces` y `rpc/parche_summary`; y la sesión del token tiene que existir en
+  `auth.sessions`. Responde 403 (`appNotAllowed`) o 401 (`accessRevoked`). Sin `client_id` no hace nada.
+- **Trigger en `movements`** (`movements_oauth_guard`): con `client_id`, solo se insertan gastos (ni pagos, ni
+  ediciones, ni borrados; también cubre un upsert).
+- **Trigger en `auth.users`** (`block_password_change`): nadie cambia `encrypted_password` (Joan: "Sí, bloquearlas").
+  Supabase Auth escribe esa tabla con su propio rol, sin los claims del token, así que el bloqueo es para todas las
+  cuentas. Supabase Auth le pone una contraseña al azar a cada cuenta nueva: crear la cuenta sigue igual.
+- **Consentimiento:** "Al permitir, vuelves a <sitio>." con el host de `redirect_uri`; sin uno válido, la solicitud no
+  se aprueba.
+
+Alternativas descartadas: un rol de Postgres propio con el custom access token hook (no limita Supabase Auth, que es
+por donde se pone la contraseña) y el hook de verificación de contraseña (no está en el plan gratis).
 
 ## Risks / Trade-offs
 
@@ -149,8 +168,11 @@ La herramienta lleva `readOnlyHint: false` y `destructiveHint: false`; las de le
 - **[Prompt injection: un texto que Claude lea le pide anotar]** → Anotar es la única escritura, se declara como tal
   (Claude pide confirmación), se valida en el servidor y en la base, y no hay borrar ni editar.
 - **[Un reintento de Claude anota dos veces]** → Se acepta. El gasto se ve y se borra desde la app.
-- **[Quitar el acceso no corta el token vigente al instante]** → El token de acceso dura una hora (`jwt_expiry`). La
-  spec dice "a más tardar en una hora".
+- **[El token de OAuth es una sesión completa]** → D10. Lo que queda sin cubrir: Realtime (solo lee con RLS hasta que
+  vence el token) y otras rutas de Supabase Auth (cerrar las otras sesiones, cambiar `user_metadata`, que la app no
+  lee, y registrar MFA si se activa TOTP en la nube).
+- **[Sin contraseñas para nadie]** → Si algún día se quiere entrar con contraseña, se quita el trigger con una
+  migración nueva.
 - **[El registro automático deja que cualquier cliente se registre]** → La página siempre pide aprobar y muestra el
   nombre del cliente, y "Tus conexiones" deja quitarle el acceso.
 - **[Pasar testing y prod a claves asimétricas]** → Supabase rota sin cortar las sesiones. Se hace primero en testing
