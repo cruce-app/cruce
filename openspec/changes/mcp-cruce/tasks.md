@@ -31,7 +31,7 @@
 ## 5. CI, scripts y documentación
 
 - [ ] 5.1 `.github/workflows/ci.yml`: trabajo `functions` (si cambia `supabase/functions/**` o el propio `ci.yml`) con `deno fmt --check`, `deno lint`, `deno test` y la revisión de que `ui_bundle.ts` está al día. Se verifica con `actionlint` y con la CI en verde en el PR
-- [ ] 5.2 `scripts/functions-deploy.sh testing|prod` (como `db-push.sh`: prod pide confirmación y no se usa `supabase link` a mano). Se verifica con `bash -n` y con una corrida en seco que imprime el comando
+- [x] 5.2 `scripts/functions-deploy.sh testing|prod` (como `db-push.sh`: prod pide confirmación y no se usa `supabase link` a mano). Se verifica con `bash -n` y con una corrida en seco que imprime el comando
 - [ ] 5.3 Documentación: `CLAUDE.md` (§2, §3, §4, §6 y §8), `supabase/README.md` (OAuth, claves de firma, la función y su despliegue), `backend/README.md` (rutas y variables nuevas, y la app de prod) y `docs/ROADMAP.md`
 
 ## 6. Nube (con Joan)
