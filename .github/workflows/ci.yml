@@ -41,6 +41,7 @@ jobs:
               - '.github/workflows/ci.yml'
             functions:
               - 'supabase/functions/**'
+              - 'supabase/functions/mcp/ui/**'
               - '.github/workflows/ci.yml'
 
   backend:
@@ -125,8 +126,21 @@ jobs:
         run: deno fmt --check
       - name: deno lint
         run: deno lint
+      # La función y el código de las pantallas (ui/src), que usa los mismos tipos de herramientas.ts.
       - name: deno check
-        run: deno check index.ts
+        run: deno check index.ts ui/src/*.ts
       # Pesos, frases y herramientas con un doble de la base: no necesita Supabase.
       - name: deno test
         run: deno test
+      # Las pantallas: volver a empaquetarlas no puede cambiar ui_bundle.ts (si cambia, faltó correr el build).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: supabase/functions/mcp/ui/package-lock.json
+      - name: ui_bundle.ts al día
+        working-directory: supabase/functions/mcp/ui
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          git diff --exit-code -- ../ui_bundle.ts

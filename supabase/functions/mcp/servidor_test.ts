@@ -98,6 +98,41 @@ Deno.test("MCP Apps (tarea 2.1): con la pantalla, ver_cruces declara _meta.ui.re
   assertEquals(recurso.result.contents[0].text, html);
 });
 
+Deno.test("Con las pantallas empaquetadas, ver_cruces, ver_movimientos y abrir_anotar declaran la suya", async () => {
+  const h = manejador(PANTALLAS);
+  const { result } = await rpc(h, "tools/list");
+  const pantallaDe = Object.fromEntries(
+    (result.tools as Herramienta[]).map((t) => [t.name, t._meta?.ui?.resourceUri ?? null]),
+  );
+  assertEquals(pantallaDe, {
+    ver_cruces: "ui://cruce/cruces.html",
+    ver_movimientos: "ui://cruce/movimientos.html",
+    abrir_anotar: "ui://cruce/anotar.html",
+    anotar_gasto: null,
+    ver_parches: null,
+    ver_parche: null,
+  });
+  const recursos = await rpc(h, "resources/list");
+  assertEquals(
+    (recursos.result.resources as { uri: string }[]).map((r) => r.uri).sort(),
+    ["ui://cruce/anotar.html", "ui://cruce/cruces.html", "ui://cruce/movimientos.html"],
+  );
+  for (const uri of Object.values(pantallaDe).filter((u) => u !== null)) {
+    const leido = await rpc(h, "resources/read", { uri });
+    assertEquals(leido.result.contents[0].mimeType, "text/html;profile=mcp-app");
+    assertStringIncludes(leido.result.contents[0].text, "<!doctype html>");
+  }
+});
+
+Deno.test("Las pantallas empaquetadas no cargan nada de otros dominios", () => {
+  assertEquals(Object.keys(PANTALLAS).sort(), ["anotar.html", "cruces.html", "movimientos.html"]);
+  for (const [nombre, html] of Object.entries(PANTALLAS)) {
+    // Ni <script src>, ni <link href>, ni url() ni @import hacia otro origen: todo va dentro del HTML.
+    assertEquals(html.match(/\b(?:src|href)\s*=\s*["']?(?:https?:)?\/\//gi), null, nombre);
+    assertEquals(html.match(/(?:url\(\s*["']?|@import\s+["'])(?:https?:)?\/\//gi), null, nombre);
+  }
+});
+
 Deno.test("Con pantalla, las herramientas siguen devolviendo el texto completo", async () => {
   const d = datos();
   const h = manejador(PANTALLAS, d);

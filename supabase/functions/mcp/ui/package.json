@@ -1,0 +1,19 @@
+{
+  "name": "cruce-mcp-pantallas",
+  "private": true,
+  "type": "module",
+  "description": "Pantallas del MCP de Cruce (MCP Apps): npm run build escribe ../ui_bundle.ts",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.4"
+  },
+  "devDependencies": {
+    "vite": "8.3.8",
+    "vite-plugin-singlefile": "2.3.4"
+  }
+}

@@ -1,0 +1,430 @@
+/*
+ * Estilo de Cruce (neobrutalista juguetón) para las pantallas dentro de Claude.
+ * Los tokens son los de ios/Cruce/DesignSystem/ (Colors.swift y Metrics.swift); si cambian allá, cambian aquí.
+ * Sin fuentes externas: el CSP de las pantallas no deja cargar nada de otros dominios, así que va la fuente del
+ * sistema en negrita.
+ */
+:root {
+  /* CruceColor */
+  --amarillo: #ffd12e;
+  --violeta: #8b6cff;
+  --verde: #3dcb4a;
+  --rosado: #ff5c8a;
+  --lima: #b5e33b;
+  --durazno: #ffe19a;
+  --tinta: #111111;
+  --crema: #fbf6ea;
+  --superficie: #ffffff;
+  --texto-secundario: #4a4a4a;
+  --texto: #3a3a3a;
+  --linea: #e2dbcb;
+  --neutro: #d9d4c7;
+
+  /* Radius */
+  --radio-chip: 10px;
+  --radio-input: 12px;
+  --radio-boton: 14px;
+  --radio-tarjeta: 16px;
+
+  /* BorderWidth */
+  --borde-delgado: 2px;
+  --borde: 2.5px;
+  --borde-grueso: 3px;
+
+  /* ShadowOffset: sombras sólidas, sin blur */
+  --sombra-xs: 2px;
+  --sombra-s: 3px;
+  --sombra-m: 4px;
+  --sombra-l: 5px;
+  --sombra-xl: 6px;
+
+  /* Spacing */
+  --esp-xxs: 6px;
+  --esp-xs: 8px;
+  --esp-s: 10px;
+  --esp-m: 12px;
+  --esp-l: 16px;
+  --esp-xl: 20px;
+  --esp-xxl: 24px;
+  --esp-pantalla: 20px;
+  --toque-minimo: 44px;
+
+  --fuente: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 15px;
+  line-height: 1.35;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Sin scroll anidado: la pantalla crece con su contenido y el anfitrión ajusta el alto (autoResize). */
+.pantalla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-l);
+  padding: var(--esp-l) var(--esp-pantalla) var(--esp-xxl);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+@media (max-width: 360px) {
+  .pantalla {
+    padding-inline: var(--esp-l);
+  }
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+}
+
+.secundario {
+  color: var(--texto-secundario);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.etiqueta {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+/* ─── Tarjeta tipo carpeta (FolderCard): pestaña de color arriba a la izquierda ─── */
+
+.carpeta {
+  display: flex;
+  flex-direction: column;
+  margin-right: var(--sombra-xl);
+}
+
+.carpeta__pestana {
+  align-self: flex-start;
+  min-width: 150px;
+  max-width: calc(100% - 28px);
+  margin-left: 14px;
+  margin-bottom: calc(var(--borde) * -1);
+  padding: 5px 16px 5px 12px;
+  background: var(--neutro);
+  border: var(--borde) solid var(--tinta);
+  border-radius: 10px 14px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.carpeta__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-m);
+  padding: var(--esp-l) 18px 18px;
+  background: var(--superficie);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-xl) var(--sombra-xl) 0 var(--tinta);
+}
+
+.a-favor .carpeta__pestana {
+  background: var(--verde);
+}
+
+.en-contra .carpeta__pestana {
+  background: var(--rosado);
+}
+
+.cerrado .carpeta__cuerpo {
+  background: var(--crema);
+}
+
+.persona {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-s);
+  min-width: 0;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: var(--borde) solid var(--tinta);
+  border-radius: 50%;
+  background: var(--neutro);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.persona__nombre {
+  font-size: 18px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.frase {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.chip {
+  align-self: flex-start;
+  padding: 3px 10px;
+  background: var(--crema);
+  border: var(--borde-delgado) solid var(--tinta);
+  border-radius: var(--radio-chip);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ─── Botones (NeoButtonStyle) ─── */
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-s);
+}
+
+.boton {
+  min-height: var(--toque-minimo);
+  padding: var(--esp-s) var(--esp-l);
+  background: var(--superficie);
+  color: var(--tinta);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-boton);
+  box-shadow: var(--sombra-m) var(--sombra-m) 0 var(--tinta);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* En una fila de acciones, los botones se reparten el ancho y bajan a otra fila si no caben. */
+.acciones .boton {
+  flex: 1 1 180px;
+}
+
+.boton--principal {
+  background: var(--amarillo);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.boton:active:not(:disabled) {
+  transform: translate(var(--sombra-m), var(--sombra-m));
+  box-shadow: none;
+}
+
+.boton:disabled {
+  background: var(--neutro);
+  cursor: default;
+}
+
+.boton:focus-visible,
+.opcion input:focus-visible + span,
+.campo input:focus-visible,
+.monto input:focus-visible {
+  outline: var(--borde-grueso) solid var(--violeta);
+  outline-offset: 2px;
+}
+
+/* ─── Movimientos ─── */
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.movimiento {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--esp-m) var(--esp-l);
+  background: var(--superficie);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-s) var(--sombra-s) 0 var(--tinta);
+  margin-right: var(--sombra-s);
+}
+
+.movimiento__arriba {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--esp-s);
+}
+
+.movimiento__concepto {
+  font-size: 15px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.movimiento__monto {
+  flex: none;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.movimiento__detalle {
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ─── Formulario de anotar ─── */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-l);
+}
+
+.monto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--esp-m) var(--esp-l);
+  background: var(--amarillo);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra-l) var(--sombra-l) 0 var(--tinta);
+  margin-right: var(--sombra-l);
+}
+
+.monto input {
+  width: 100%;
+  min-height: var(--toque-minimo);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radio-input);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -1.4px;
+}
+
+.monto input::placeholder {
+  color: rgba(17, 17, 17, 0.45);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-xxs);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.campo__etiqueta {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.campo input[type="text"],
+.campo input[type="number"] {
+  width: 100%;
+  min-height: var(--toque-minimo);
+  padding: var(--esp-s) var(--esp-m);
+  background: var(--superficie);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-input);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Opciones de una sola elección (quién pagó, reparto y categoría): radios con forma de botón. */
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-xs);
+}
+
+.opcion {
+  flex: 1 1 auto;
+  display: flex;
+  position: relative;
+}
+
+.opcion input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.opcion span {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: var(--toque-minimo);
+  padding: var(--esp-xs) var(--esp-m);
+  background: var(--superficie);
+  border: var(--borde-delgado) solid var(--tinta);
+  border-radius: var(--radio-chip);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+}
+
+.opcion input:checked + span {
+  background: var(--tinta);
+  color: var(--superficie);
+}
+
+.aviso {
+  padding: var(--esp-m) var(--esp-l);
+  background: var(--rosado);
+  border: var(--borde) solid var(--tinta);
+  border-radius: var(--radio-input);
+  font-weight: 800;
+}
+
+.oculto {
+  display: none !important;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
