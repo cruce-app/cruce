@@ -152,9 +152,16 @@ Auth, PostgREST y la función lo aceptan igual. Por eso, en la base (`2026112310
   `auth.sessions`. Responde 403 (`appNotAllowed`) o 401 (`accessRevoked`). Sin `client_id` no hace nada.
 - **Trigger en `movements`** (`movements_oauth_guard`): con `client_id`, solo se insertan gastos (ni pagos, ni
   ediciones, ni borrados; también cubre un upsert).
+- **Política restrictiva de lectura en `movements`** (`movements_oauth_session`): Realtime no pasa por la
+  pre-request, lee con RLS y los claims del token; con `client_id` y la sesión borrada no ve nada. `movements` es la
+  única tabla de la publicación `supabase_realtime`; si se agrega otra, necesita la misma política.
 - **Trigger en `auth.users`** (`block_password_change`): nadie cambia `encrypted_password` (Joan: "Sí, bloquearlas").
   Supabase Auth escribe esa tabla con su propio rol, sin los claims del token, así que el bloqueo es para todas las
   cuentas. Supabase Auth le pone una contraseña al azar a cada cuenta nueva: crear la cuenta sigue igual.
+- **Contraseña al nacer** (`forget_new_password`): la contraseña con la que se crea una cuenta se cambia por una al
+  azar. Con `/signup` alguien podía crear la cuenta de otra persona con su propia contraseña y entrar cuando ella se
+  registrara con el código. Junto con "Confirm email" activo (`enable_confirmations = true`), `/signup` tampoco
+  entrega una sesión antes de que la dueña del correo lo confirme.
 - **Consentimiento:** "Al permitir, vuelves a <sitio>." con el host de `redirect_uri`; sin uno válido, la solicitud no
   se aprueba.
 
@@ -168,9 +175,11 @@ por donde se pone la contraseña) y el hook de verificación de contraseña (no 
 - **[Prompt injection: un texto que Claude lea le pide anotar]** → Anotar es la única escritura, se declara como tal
   (Claude pide confirmación), se valida en el servidor y en la base, y no hay borrar ni editar.
 - **[Un reintento de Claude anota dos veces]** → Se acepta. El gasto se ve y se borra desde la app.
-- **[El token de OAuth es una sesión completa]** → D10. Lo que queda sin cubrir: Realtime (solo lee con RLS hasta que
-  vence el token) y otras rutas de Supabase Auth (cerrar las otras sesiones, cambiar `user_metadata`, que la app no
-  lee, y registrar MFA si se activa TOTP en la nube).
+- **[El token de OAuth es una sesión completa]** → D10. Lo que queda sin cubrir: otras rutas de Supabase Auth (cerrar
+  las otras sesiones, cambiar `user_metadata`, que la app no lee, pedir un cambio de correo, que con "Secure email
+  change" también tiene que confirmar el correo de antes, y registrar MFA si se activa TOTP en la nube).
+- **["Confirm email" en la nube]** → Si está apagado en testing o prod, `/signup` entrega una sesión a quien registre
+  un correo ajeno. Se revisa en la tarea 6.1.
 - **[Sin contraseñas para nadie]** → Si algún día se quiere entrar con contraseña, se quita el trigger con una
   migración nueva.
 - **[El registro automático deja que cualquier cliente se registre]** → La página siempre pide aprobar y muestra el

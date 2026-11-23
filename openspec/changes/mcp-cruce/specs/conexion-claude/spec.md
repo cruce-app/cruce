@@ -65,7 +65,7 @@ sin acceso. La página MUST NOT usar ni recibir la clave `service_role`, y MUST 
 El backend SHALL servir una página "Tus conexiones" (`/oauth/conexiones`) que, con la sesión iniciada, liste las
 aplicaciones con acceso a la cuenta y deje quitarle el acceso a cada una con "Quitar acceso". Después de quitarlo, esa
 aplicación MUST NOT poder leer ni anotar nada con los tokens que ya tenía, ni por el servidor MCP ni directo contra la
-base, y MUST volver a pedir consentimiento para conectarse otra vez.
+base ni por Realtime, y MUST volver a pedir consentimiento para conectarse otra vez.
 
 #### Scenario: Quitarle el acceso a Claude
 - **WHEN** Jesús abre "Tus conexiones" y toca "Quitar acceso" en Claude
@@ -106,3 +106,7 @@ de entrar con correo y contraseña. Entrar con el código por correo, crear una 
 #### Scenario: Una aplicación intenta ponerle contraseña a la cuenta
 - **WHEN** una aplicación conectada usa su token para ponerle una contraseña a la cuenta de Joan
 - **THEN** Supabase Auth lo rechaza y nadie puede entrar a la cuenta de Joan con correo y esa contraseña
+
+#### Scenario: Alguien crea la cuenta de otra persona con una contraseña
+- **WHEN** alguien se registra con el correo de Ana, que todavía no tiene cuenta, y una contraseña que él eligió, y después Ana entra con su código
+- **THEN** el registro no le da una sesión, Ana entra a su cuenta y esa contraseña no sirve para entrar a ella

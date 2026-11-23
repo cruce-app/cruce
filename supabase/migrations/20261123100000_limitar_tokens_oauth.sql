@@ -9,11 +9,14 @@
 --     y las dos funciones de lectura que usan las herramientas (my_cruces y parche_summary).
 --   - movements_oauth_guard: con client_id, en movements solo se insertan gastos; nada de pagos, ediciones ni borrados
 --     (cubre también un upsert, que llega como POST).
---   - block_password_change: nadie le pone ni le cambia la contraseña a una cuenta, porque Cruce no usa contraseñas
---     (se entra con un código por correo). Así un token de una aplicación no se convierte en una forma de entrar con
---     correo y contraseña. Supabase Auth le pone una contraseña al azar a cada cuenta nueva: crearla sigue igual.
---
--- La pre-request solo cubre la API de datos (PostgREST); Realtime no pasa por ella (ver los riesgos del design).
+--   - movements_oauth_session: política restrictiva de lectura en movements. Realtime no pasa por la pre-request: lee
+--     con RLS y los claims del token. Con client_id y la sesión borrada, no se ve ningún movimiento.
+--   - Sin contraseñas, porque Cruce no las usa (se entra con un código por correo):
+--     - block_password_change: nadie le pone ni le cambia la contraseña a una cuenta. Así un token de una aplicación
+--       no se convierte en una forma de entrar con correo y contraseña.
+--     - forget_new_password: la contraseña con la que nace una cuenta se cambia por una al azar que nadie conoce. Supabase
+--       Auth ya le pone una al azar a cada cuenta por código; esto cubre /signup con una contraseña elegida, que si no
+--       dejaría a alguien entrar a la cuenta de otra persona que todavía no se ha creado la suya.
 
 -- ─────────────────────────────────────────────────────────────
 -- Claims de la petición
@@ -25,30 +28,43 @@ language sql stable set search_path = '' as $$
   select nullif(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'client_id', '')
 $$;
 
+-- oauth_session_alive() → false solo si el token es de una aplicación conectada y su sesión ya no existe (se quitó el
+-- acceso o se borró la cuenta). security definer para leer auth.sessions, que el rol de la petición no ve.
+create function public.oauth_session_alive() returns boolean
+language plpgsql stable security definer set search_path = '' as $$
+declare
+  v_claims jsonb := nullif(current_setting('request.jwt.claims', true), '')::jsonb;
+  v_session uuid;
+begin
+  if v_claims is null or nullif(v_claims ->> 'client_id', '') is null then
+    return true;
+  end if;
+  begin
+    v_session := (v_claims ->> 'session_id')::uuid;
+  exception when invalid_text_representation then
+    return false;
+  end;
+  return v_session is not null and exists (select 1 from auth.sessions where id = v_session);
+end;
+$$;
+
 -- ─────────────────────────────────────────────────────────────
 -- Pre-request de PostgREST
 -- ─────────────────────────────────────────────────────────────
 
--- security definer para leer auth.sessions, que el rol de la petición no ve.
 create function public.oauth_request_guard() returns void
 language plpgsql security definer set search_path = '' as $$
 declare
   v_claims jsonb := nullif(current_setting('request.jwt.claims', true), '')::jsonb;
   v_method text := upper(coalesce(current_setting('request.method', true), ''));
   v_path text := ltrim(coalesce(current_setting('request.path', true), ''), '/');
-  v_session uuid;
 begin
   if v_claims is null or nullif(v_claims ->> 'client_id', '') is null then
     return;
   end if;
 
   -- Quitar el acceso (o borrar la cuenta) borra la sesión: el token deja de servir aunque no haya vencido.
-  begin
-    v_session := (v_claims ->> 'session_id')::uuid;
-  exception when invalid_text_representation then
-    v_session := null;
-  end;
-  if v_session is null or not exists (select 1 from auth.sessions where id = v_session) then
+  if not public.oauth_session_alive() then
     raise sqlstate 'PGRST' using
       message = json_build_object(
         'code', 'accessRevoked',
@@ -78,6 +94,8 @@ revoke all on function public.oauth_request_guard() from public;
 grant execute on function public.oauth_request_guard() to anon, authenticated;
 revoke all on function public.oauth_client_id() from public;
 grant execute on function public.oauth_client_id() to anon, authenticated;
+revoke all on function public.oauth_session_alive() from public;
+grant execute on function public.oauth_session_alive() to anon, authenticated;
 
 alter role authenticator set pgrst.db_pre_request = 'public.oauth_request_guard';
 notify pgrst, 'reload config';
@@ -106,6 +124,12 @@ create trigger movements_oauth_guard
   before insert or update or delete on public.movements
   for each row execute function public.movements_oauth_guard();
 
+-- Realtime (postgres_changes) lee movements con RLS y los claims del token: una política restrictiva corta el token
+-- de una aplicación apenas se le quita el acceso. (select …) la evalúa una vez por consulta, no por fila.
+create policy movements_oauth_session on public.movements
+  as restrictive for select to authenticated
+  using ((select public.oauth_session_alive()));
+
 -- ─────────────────────────────────────────────────────────────
 -- auth.users: sin contraseñas
 -- ─────────────────────────────────────────────────────────────
@@ -127,3 +151,20 @@ create trigger block_password_change
   for each row
   when (new.encrypted_password is distinct from old.encrypted_password)
   execute function public.block_password_change();
+
+-- security definer para usar pgcrypto (en extensions), que el rol de Supabase Auth no ve.
+create function public.forget_new_password() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  new.encrypted_password := extensions.crypt(gen_random_uuid()::text, extensions.gen_salt('bf'));
+  return new;
+end;
+$$;
+
+revoke all on function public.forget_new_password() from public, anon, authenticated;
+
+create trigger forget_new_password
+  before insert on auth.users
+  for each row
+  when (coalesce(new.encrypted_password, '') <> '')
+  execute function public.forget_new_password();

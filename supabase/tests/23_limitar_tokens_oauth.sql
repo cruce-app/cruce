@@ -6,7 +6,7 @@
 -- request.path); el recorrido de scripts/mcp-local.sh la prueba por HTTP con un token OAuth real.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(36);
+select plan(42);
 
 -- Joan con la sesión de la app (sin client_id) o con la de Claude (client_id y session_id).
 create function pg_temp.request(p_claims text, p_method text, p_path text) returns void language sql as $$
@@ -156,6 +156,34 @@ select lives_ok(
   $$insert into auth.users (id, email, encrypted_password)
     values ('23000000-0000-0000-0000-000000000003', 'ana@example.com', extensions.crypt('azar', extensions.gen_salt('bf')))$$,
   'Una cuenta nueva sigue naciendo con la contraseña al azar de Supabase Auth');
+select isnt(
+  (select encrypted_password::text from auth.users where id = '23000000-0000-0000-0000-000000000003'),
+  (select extensions.crypt('azar', encrypted_password)::text from auth.users where id = '23000000-0000-0000-0000-000000000003'),
+  'La contraseña con la que se crea una cuenta (por ejemplo con /signup) no sirve para entrar');
+select ok(
+  (select encrypted_password like '$2%' from auth.users where id = '23000000-0000-0000-0000-000000000003'),
+  'La cuenta nueva queda con una contraseña al azar con el formato de Supabase Auth');
+
+-- ─────────────────────────────────────────────────────────────
+-- Realtime: lee movements con RLS y los claims del token, sin pasar por la pre-request
+-- ─────────────────────────────────────────────────────────────
+select pg_temp.request(pg_temp.claude(), 'GET', '/movements');
+set local role authenticated;
+select is((select count(*) from public.movements where ledger_id = current_setting('t.ledger')::uuid), 2::bigint,
+  'Con el acceso vigente, Claude lee los movimientos');
+reset role;
+delete from auth.sessions where id = '23000000-0000-0000-0000-00000000c1a0';
+set local role authenticated;
+select is((select count(*) from public.movements where ledger_id = current_setting('t.ledger')::uuid), 0::bigint,
+  'Después de quitar el acceso, el mismo token no lee movimientos (tampoco por Realtime)');
+select pg_temp.request(pg_temp.app(), 'GET', '/movements');
+select is((select count(*) from public.movements where ledger_id = current_setting('t.ledger')::uuid), 2::bigint,
+  'La sesión de la app sigue leyendo');
+select pg_temp.request(null, 'GET', '/movements');
+select set_config('request.jwt.claims', '{"sub":"23000000-0000-0000-0000-000000000001","role":"authenticated"}', true);
+select is((select count(*) from public.movements where ledger_id = current_setting('t.ledger')::uuid), 2::bigint,
+  'Un token sin session_id ni client_id (como los de las pruebas) sigue leyendo');
+reset role;
 
 select * from finish();
 rollback;

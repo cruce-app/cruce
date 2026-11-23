@@ -36,12 +36,12 @@
 
 ## 7. Límite del token de Claude
 
-- [x] 7.1 Migración `20261123100000_limitar_tokens_oauth.sql`: pre-request de PostgREST para tokens con `client_id` (lecturas, anotar gastos, `my_cruces` y `parche_summary`, y sesión viva), trigger de `movements` (solo gastos) y trigger de `auth.users` (sin contraseñas). Se verifica con `23_limitar_tokens_oauth.sql` y con `scripts/mcp-local.sh` usando un token OAuth de verdad
+- [x] 7.1 Migración `20261123100000_limitar_tokens_oauth.sql`: pre-request de PostgREST para tokens con `client_id` (lecturas, anotar gastos, `my_cruces` y `parche_summary`, y sesión viva), trigger de `movements` (solo gastos), política restrictiva de lectura de `movements` (Realtime) y triggers de `auth.users` (sin contraseñas, también al crear la cuenta); `enable_confirmations = true` en `config.toml`. Se verifica con `23_limitar_tokens_oauth.sql` y con `scripts/mcp-local.sh` usando un token OAuth de verdad
 - [x] 7.2 El consentimiento dice "Al permitir, vuelves a <sitio>." y no deja aprobar sin una dirección de regreso válida. Se verifica con `go test` y en el navegador con un cliente registrado como "Claude" que vuelve a `evil.example`
 
 ## 6. Nube (con Joan)
 
-- [ ] 6.1 Testing: claves asimétricas en el panel (y la app de iOS sigue entrando), servidor OAuth con registro automático, Site URL `https://cruce-api-testing.fly.dev`, `scripts/db-push.sh testing`, `scripts/functions-deploy.sh testing` y `fly deploy -a cruce-api-testing` con `SUPABASE_ANON_KEY`. Se verifica con el 401 de la función y con la página de consentimiento abierta
+- [ ] 6.1 Testing: "Confirm email" y "Secure email change" activos (Authentication → Sign In / Providers → Email), claves asimétricas en el panel (y la app de iOS sigue entrando), servidor OAuth con registro automático, Site URL `https://cruce-api-testing.fly.dev`, `scripts/db-push.sh testing`, `scripts/functions-deploy.sh testing` y `fly deploy -a cruce-api-testing` con `SUPABASE_ANON_KEY`. Se verifica con el 401 de la función y con la página de consentimiento abierta
 - [ ] 6.2 Joan y Jesús conectan Cruce en Claude (web o escritorio) contra testing: ven sus cruces, anotan un gasto que aparece en "Cruce Test", ven las pantallas y quitan el acceso
 - [ ] 6.3 Prod: crear `cruce-api-prod` en Fly (secretos y webhook de `movements`), repetir 6.1 contra prod y conectar Claude a la cuenta real
 

@@ -9,7 +9,8 @@
 # cruce de Joan con Pedro queda cerrado y Ana no tiene cruces con nadie. Después llama a la función `mcp` con JSON-RPC
 # por Streamable HTTP y revisa el 401 sin token, tools/list, ver_cruces, ver_movimientos, ver_parche, anotar_gasto,
 # el cruce cerrado, lo ajeno y la cuenta borrada. Al final conecta "Claude" con un token OAuth de verdad y revisa
-# que ese token solo lee y anota gastos, que no le pone contraseña a la cuenta y que quitar el acceso lo corta.
+# que ese token solo lee y anota gastos, que no le pone contraseña a la cuenta y que quitar el acceso lo corta; y que
+# crear la cuenta de otra persona con una contraseña (/signup) no deja entrar a ella.
 #
 # Necesita `supabase start` desde la raíz del repo (con mailpit, el runtime de funciones y la clave ES256 de
 # supabase/signing_keys.json; ver supabase/README.md). Solo toca la base local.
@@ -311,6 +312,21 @@ estado="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$mcp" -H "Authorizatio
 [[ "$estado" == "401" ]] && ok "acceso quitado: el MCP responde 401" || falla "acceso quitado, el MCP respondió $estado"
 estado="$(estado_de "$joan" GET "$api/rest/v1/profiles?select=id")"
 [[ "$estado" == "200" ]] && ok "la sesión de la app sigue sirviendo" || falla "la sesión de la app respondió $estado"
+
+# 10. Crear la cuenta de otra persona con una contraseña (/signup) no deja entrar a esa cuenta: no entrega sesión, la
+# contraseña se cambia por una al azar y, cuando la dueña entra con su código, la contraseña sigue sin servir.
+correo_nuevo="mcp-nueva-$sufijo@example.com"
+clave="$(python3 -c 'import secrets;print("C-" + secrets.token_urlsafe(16))')"
+registro="$(curl -s -X POST "$api/auth/v1/signup" -H "apikey: $anon" -H 'content-type: application/json' \
+    -d "{\"email\":\"$correo_nuevo\",\"password\":\"$clave\"}")"
+[[ "$registro" != *access_token* ]] && ok "/signup con contraseña: sin sesión" || falla "/signup con contraseña entregó una sesión"
+sleep 1.2   # max_frequency: Supabase Auth no manda otro correo al mismo correo antes de un segundo
+read -r _ nueva_id < <(entrar "$correo_nuevo")
+[[ -n "${nueva_id:-}" ]] && ok "la dueña del correo entra con su código" || falla "la dueña del correo no pudo entrar"
+entra="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$api/auth/v1/token?grant_type=password" -H "apikey: $anon" \
+    -H 'content-type: application/json' -d "{\"email\":\"$correo_nuevo\",\"password\":\"$clave\"}")"
+[[ "$entra" == "400" ]] && ok "/signup con contraseña: esa contraseña no entra (400)" ||
+    falla "la contraseña de /signup entró a la cuenta: $entra"
 
 if ((fallas > 0)); then
     echo "Fallaron $fallas revisiones." >&2
