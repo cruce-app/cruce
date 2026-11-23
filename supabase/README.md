@@ -91,12 +91,14 @@ supabase stop && supabase start                        # Auth y PostgREST firman
 - Metadatos del servidor de autorización: `curl http://127.0.0.1:54321/auth/v1/.well-known/oauth-authorization-server` (trae `registration_endpoint`). En local, la forma con la ruta al final (`/.well-known/oauth-authorization-server/auth/v1`) responde 404 en Kong; la de arriba y `/auth/v1/.well-known/openid-configuration` sí responden.
 - Metadatos del recurso protegido: `curl http://127.0.0.1:54321/functions/v1/mcp/oauth-protected-resource`.
 
-**La función `mcp`.** La sirve `supabase start` en `http://127.0.0.1:54321/functions/v1/mcp` (Streamable HTTP, sin estado). Sin token responde 401 con `WWW-Authenticate: Bearer resource_metadata="…"`. Herramientas: `ver_cruces`, `ver_movimientos`, `ver_parches`, `ver_parche` (las cuatro de solo lectura) y `anotar_gasto` (la única que escribe). Con una cuenta borrada o un acceso quitado, responde 401 aunque el token siga vigente.
+**La función `mcp`.** La sirve `supabase start` en `http://127.0.0.1:54321/functions/v1/mcp` (Streamable HTTP, sin estado). Sin token responde 401 con `WWW-Authenticate: Bearer resource_metadata="…"`. Herramientas: `ver_cruces`, `ver_movimientos`, `ver_parches`, `ver_parche`, `abrir_anotar` (las cinco de solo lectura) y `anotar_gasto` (la única que escribe). `ver_cruces`, `ver_movimientos` y `abrir_anotar` declaran su pantalla de MCP Apps (`ui://cruce/cruces.html`, `movimientos.html` y `anotar.html`); todas devuelven también el texto completo. Con una cuenta borrada o un acceso quitado, responde 401 aunque el token siga vigente.
 
 ```bash
 cd supabase/functions/mcp && deno fmt --check && deno lint && deno test   # pesos, frases y herramientas, sin base
 scripts/mcp-local.sh                                                      # recorrido contra Supabase local (mailpit)
 ```
+
+- **Las pantallas** están en `supabase/functions/mcp/ui/` (Vite y `vite-plugin-singlefile`, sin framework, con los tokens de `ios/Cruce/DesignSystem/` como variables CSS). Si cambias algo ahí, vuelve a empaquetar y sube `ui_bundle.ts` con el cambio: `cd supabase/functions/mcp/ui && npm ci && npm run build`. La CI revisa que el build no lo cambie.
 
 - Si cambias el esquema de la base, regenera los tipos: `supabase gen types typescript --local > supabase/functions/mcp/database.types.ts`.
 - El runtime local a veces no toma un cambio de la función de inmediato; `docker restart supabase_edge_runtime_cruce` lo fuerza.

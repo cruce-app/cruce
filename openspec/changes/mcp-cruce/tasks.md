@@ -24,15 +24,15 @@
 
 ## 4. Pantallas (MCP App)
 
-- [ ] 4.1 Proyecto `supabase/functions/mcp/ui/` (Vite + `vite-plugin-singlefile`, sin framework) que genera `ui_bundle.ts` con `cruces.html`, `movimientos.html` y `anotar.html`, y los tokens de `DesignSystem/` como variables CSS. Se verifica con `npm run build` y un `ui_bundle.ts` regenerado sin cambios
-- [ ] 4.2 Las tres pantallas con la clase `App` (`ontoolresult` y `callServerTool`): tarjetas de saldo, lista de movimientos y formulario de anotar con los mismos mensajes de error; sin recursos de otros dominios y bien desde 320 px. Se verifica en `basic-host` de ext-apps contra la función local, con capturas
-- [ ] 4.3 `ver_cruces`, `ver_movimientos` y una herramienta `abrir_anotar` declaran su pantalla y siguen devolviendo el texto completo. Se verifica con `tools/list` y en `basic-host`
+- [x] 4.1 Proyecto `supabase/functions/mcp/ui/` (Vite + `vite-plugin-singlefile`, sin framework) que genera `ui_bundle.ts` con `cruces.html`, `movimientos.html` y `anotar.html`, y los tokens de `DesignSystem/` como variables CSS. Se verifica con `npm run build` y un `ui_bundle.ts` regenerado sin cambios
+- [x] 4.2 Las tres pantallas con la clase `App` (`ontoolresult` y `callServerTool`): tarjetas de saldo, lista de movimientos y formulario de anotar con los mismos mensajes de error; sin recursos de otros dominios y bien desde 320 px. Se verifica en `basic-host` de ext-apps contra la función local, con capturas
+- [x] 4.3 `ver_cruces`, `ver_movimientos` y una herramienta `abrir_anotar` declaran su pantalla y siguen devolviendo el texto completo. Se verifica con `tools/list` y en `basic-host`
 
 ## 5. CI, scripts y documentación
 
 - [ ] 5.1 `.github/workflows/ci.yml`: trabajo `functions` (si cambia `supabase/functions/**` o el propio `ci.yml`) con `deno fmt --check`, `deno lint`, `deno test` y la revisión de que `ui_bundle.ts` está al día. Se verifica con `actionlint` y con la CI en verde en el PR
 - [x] 5.2 `scripts/functions-deploy.sh testing|prod` (como `db-push.sh`: prod pide confirmación y no se usa `supabase link` a mano). Se verifica con `bash -n` y con una corrida en seco que imprime el comando
-- [ ] 5.3 Documentación: `CLAUDE.md` (§2, §3, §4, §6 y §8), `supabase/README.md` (OAuth, claves de firma, la función y su despliegue), `backend/README.md` (rutas y variables nuevas, y la app de prod) y `docs/ROADMAP.md`
+- [x] 5.3 Documentación: `CLAUDE.md` (§2, §3, §4, §6 y §8), `supabase/README.md` (OAuth, claves de firma, la función y su despliegue), `backend/README.md` (rutas y variables nuevas, y la app de prod) y `docs/ROADMAP.md`
 
 ## 6. Nube (con Joan)
 

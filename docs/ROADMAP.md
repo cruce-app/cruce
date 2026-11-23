@@ -64,6 +64,19 @@ Joan los deja para cuando la app se abra a más personas:
 
 **Límites conocidos:** con una versión anterior de la app, lo que se pasa al cruce queda "por confirmar" hasta que alguien con la versión nueva lo acepte, y editar un gasto con ítems con nombre los guarda sin nombre. El enlace universal (`https://`) queda para el CP13. "Cómo pagarle a cada quien" e "Intentos con códigos de parche" ya se decidieron (ver las decisiones).
 
+## MCP de Cruce para Claude
+*Cambio `mcp-cruce` (desde el 22 nov 2026), fuera del orden de los checkpoints: Claude ve los cruces, los movimientos y los parches de quien lo conecta y anota gastos en sus cruces, con pantallas de Cruce dentro del chat. Rama `feat/mcp-cruce`. Hecho y probado en local; falta la nube.*
+- [x] `parche_summary` para leer un parche (pgTAP `22_mcp_lectura_parches`) y OAuth 2.1 de Supabase Auth con clave de firma ES256 en local.
+- [x] Edge Function `mcp`: `ver_cruces`, `ver_movimientos`, `ver_parches`, `ver_parche`, `abrir_anotar` y `anotar_gasto` (la única que escribe), con las frases de la app y RLS con el token de la persona.
+- [x] Página de consentimiento y "Tus conexiones" en el backend de Go.
+- [x] Pantallas de MCP Apps (Tus cruces, movimientos y anotar), probadas en `basic-host` de ext-apps contra la función local.
+- [ ] Recorrido local con Claude Code (`claude mcp add`): autorizar, pedir el saldo, anotar un gasto que se ve en el simulador y quitar el acceso.
+- [ ] CI en verde en el PR (trabajo `functions`, con la revisión de `ui_bundle.ts`).
+- [ ] Testing: claves asimétricas, servidor OAuth, Site URL, migración, función y backend; Joan y Jesús lo conectan en Claude.
+- [ ] Prod: app `cruce-api-prod` en Fly, lo mismo que en testing y Claude conectado a la cuenta real.
+
+**Hecho cuando:** Joan y Jesús ven sus cruces y anotan un gasto desde Claude contra prod, y el gasto aparece en la app.
+
 ## CP0 · Levantar el proyecto y compilar
 - [x] `git init`, primer commit con todo lo que hay.
 - [x] `cd ios && xcodegen` genera el proyecto sin errores.

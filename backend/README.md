@@ -86,7 +86,7 @@ go test ./...
 Hay una app de Fly por ambiente, todas con la misma máquina:
 - **La máquina:** una `shared-cpu-1x` de 256 MB, siempre prendida, en San José (`sjc`), descrita en `fly.toml`. Cuesta unos US$2 al mes.
 - **El nombre:** se pasa con `-a`. Aquí se usa `cruce-api-testing`; si ese nombre ya está tomado en Fly, usa otro y cámbialo en los comandos.
-- **Prod:** se crea igual cuando exista su proyecto de Supabase.
+- **Prod:** todavía no tiene app. La necesita el MCP de Cruce (cambio `mcp-cruce`): la página de consentimiento de prod vive en `cruce-api-prod` (`https://cruce-api-prod.fly.dev`, que va como Site URL del proyecto de prod). Se crea igual (`fly apps create cruce-api-prod`), con sus secretos (`SUPABASE_URL` y `SUPABASE_ANON_KEY` de prod y su `WEBHOOK_SECRET`) y el webhook de `movements` apuntando a ella.
 
 ### Una sola vez
 
