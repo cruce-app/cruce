@@ -3,7 +3,15 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { DatosEnMemoria } from "./datos_memoria.ts";
 import type { CruceFila, ResumenParche } from "./datos.ts";
-import { anotarGasto, MENSAJES, verCruces, verMovimientos, verParche, verParches } from "./herramientas.ts";
+import {
+  abrirAnotar,
+  anotarGasto,
+  MENSAJES,
+  verCruces,
+  verMovimientos,
+  verParche,
+  verParches,
+} from "./herramientas.ts";
 
 const JOAN = "10000000-0000-0000-0000-000000000001";
 const JESUS = "10000000-0000-0000-0000-000000000002";
@@ -20,6 +28,7 @@ function cruce(id: string, otra: string, nombre: string, usuario: string, extra:
     partner_id: otra,
     partner_name: nombre,
     partner_username: usuario,
+    partner_color: "violet",
     partner_deleted: false,
     closed_at: null,
     default_other_percent: 50,
@@ -100,6 +109,14 @@ Deno.test("ver_cruces: devuelve los tres, cada uno con su frase, y el de Pedro c
   assertStringIncludes(r.texto, "Cruce con Jesús (@jesus), abierto: Le debes $20.000 a Jesús");
 });
 
+Deno.test("ver_cruces: el color de la otra persona, y ninguno si borró su cuenta", async () => {
+  const datos = mundoDeJoan();
+  datos.cruces[1] = { ...datos.cruces[1], partner_color: "lime" };
+  datos.cruces[2] = { ...datos.cruces[2], partner_name: "Cuenta borrada", partner_deleted: true };
+  const r = await verCruces(datos);
+  assertEquals(r.datos.cruces.map((c) => c.color), ["violet", "lime", null]);
+});
+
 Deno.test("ver_cruces: sin cruces lo dice", async () => {
   const r = await verCruces(new DatosEnMemoria(JOAN, "Joan", []));
   assertEquals(r.texto, "Aún no tienes cruces.");
@@ -153,6 +170,15 @@ Deno.test("ver_movimientos: 20 por defecto y hasta 100", async () => {
   assertEquals((await verMovimientos(datos, { cruce_id: CON_JESUS, limite: 500 })).datos!.movimientos.length, 100);
   assertEquals((await verMovimientos(datos, { cruce_id: CON_JESUS, limite: 0 })).datos!.movimientos.length, 1);
   assertEquals((await verMovimientos(datos, { cruce_id: CON_JESUS })).datos!.movimientos[0].concepto, "Gasto 129");
+});
+
+Deno.test("ver_movimientos: trae también el saldo del cruce y si está abierto, para la pantalla", async () => {
+  const r = await verMovimientos(mundoDeJoan(), { cruce_id: CON_JESUS });
+  assert(!r.error);
+  assertEquals([r.datos.abierto, r.datos.neto, r.datos.saldo], [true, -20_000, "Le debes $20.000 a Jesús"]);
+  const cerrado = await verMovimientos(mundoDeJoan(), { cruce_id: CON_PEDRO });
+  assert(!cerrado.error);
+  assertEquals(cerrado.datos.abierto, false);
 });
 
 Deno.test("ver_movimientos: un cruce ajeno responde igual que uno que no existe", async () => {
@@ -433,4 +459,52 @@ Deno.test("anotar_gasto: porcentaje y fecha inválidos", async () => {
     texto: MENSAJES.fecha,
     error: true,
   });
+});
+
+// ─────────────────────────────────────────────────────────────
+// abrir_anotar
+// ─────────────────────────────────────────────────────────────
+
+Deno.test("abrir_anotar: lo que necesita el formulario, y el texto completo para los clientes sin pantallas", async () => {
+  const r = await abrirAnotar(mundoDeJoan(), { cruce_id: CON_JESUS });
+  assert(!r.error);
+  assertEquals(r.datos.cruce_id, CON_JESUS);
+  assertEquals(r.datos.yo, "Joan");
+  assertEquals(r.datos.con, "Jesús");
+  assertEquals(r.datos.porcentaje_por_defecto, 50);
+  assertEquals(r.datos.saldo, "Le debes $20.000 a Jesús");
+  assertEquals(r.datos.categorias.map((c) => c.id), [
+    "comida",
+    "mercado",
+    "transporte",
+    "hogar",
+    "ocio",
+    "prestamo",
+    "otro",
+  ]);
+  assertEquals(
+    r.texto,
+    "Para anotar un gasto con Jesús necesito el monto, el concepto, quién pagó (tú o Jesús), el reparto " +
+      "(si no lo dices, a medias) y la categoría.\nSaldo de hoy: Le debes $20.000 a Jesús.",
+  );
+});
+
+Deno.test("abrir_anotar: el reparto por defecto del cruce, en palabras", async () => {
+  const datos = mundoDeJoan();
+  datos.cruces[0] = { ...datos.cruces[0], default_other_percent: 70 };
+  const r = await abrirAnotar(datos, { cruce_id: CON_JESUS });
+  assert(!r.error);
+  assertEquals(r.datos.porcentaje_por_defecto, 70);
+  assertStringIncludes(r.texto, "(si no lo dices, 70 % para quien no pagó)");
+  datos.cruces[0] = { ...datos.cruces[0], default_other_percent: 100 };
+  const todo = await abrirAnotar(datos, { cruce_id: CON_JESUS });
+  assertStringIncludes(todo.texto, "(si no lo dices, todo es del otro)");
+});
+
+Deno.test("abrir_anotar: un cruce cerrado o ajeno, con los mensajes de anotar", async () => {
+  assertEquals(await abrirAnotar(mundoDeJoan(), { cruce_id: CON_PEDRO }), {
+    texto: "Este cruce está cerrado: ya no acepta gastos.",
+    error: true,
+  });
+  assertEquals(await abrirAnotar(mundoDeJoan(), { cruce_id: AJENO }), { texto: "No encontré ese cruce.", error: true });
 });

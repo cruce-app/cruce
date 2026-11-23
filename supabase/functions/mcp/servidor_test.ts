@@ -4,6 +4,7 @@ import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { createMcpHandler } from "@modelcontextprotocol/server";
 import { DatosEnMemoria } from "./datos_memoria.ts";
 import { crearServidor } from "./servidor.ts";
+import { PANTALLAS } from "./ui_bundle.ts";
 
 const JOAN = "10000000-0000-0000-0000-000000000001";
 const JESUS = "10000000-0000-0000-0000-000000000002";
@@ -15,6 +16,7 @@ function datos() {
     partner_id: JESUS,
     partner_name: "Jesús",
     partner_username: "jesus",
+    partner_color: "violet",
     partner_deleted: false,
     closed_at: null,
     default_other_percent: 50,
@@ -59,10 +61,11 @@ type Herramienta = {
   _meta?: { ui?: { resourceUri?: string } };
 };
 
-Deno.test("tools/list: las cinco herramientas, y solo anotar_gasto escribe", async () => {
+Deno.test("tools/list: las seis herramientas, y solo anotar_gasto escribe", async () => {
   const { result } = await rpc(manejador(), "tools/list");
   const herramientas = result.tools as Herramienta[];
   assertEquals(herramientas.map((h) => h.name).sort(), [
+    "abrir_anotar",
     "anotar_gasto",
     "ver_cruces",
     "ver_movimientos",
@@ -93,6 +96,16 @@ Deno.test("MCP Apps (tarea 2.1): con la pantalla, ver_cruces declara _meta.ui.re
   const recurso = await rpc(h, "resources/read", { uri: "ui://cruce/cruces.html" });
   assertEquals(recurso.result.contents[0].mimeType, "text/html;profile=mcp-app");
   assertEquals(recurso.result.contents[0].text, html);
+});
+
+Deno.test("Con pantalla, las herramientas siguen devolviendo el texto completo", async () => {
+  const d = datos();
+  const h = manejador(PANTALLAS, d);
+  const cruces = await rpc(h, "tools/call", { name: "ver_cruces", arguments: {} });
+  assertStringIncludes(cruces.result.content[0].text, "Cruce con Jesús (@jesus), abierto: Están a paz y salvo");
+  const anotar = await rpc(h, "tools/call", { name: "abrir_anotar", arguments: { cruce_id: CON_JESUS } });
+  assertStringIncludes(anotar.result.content[0].text, "Para anotar un gasto con Jesús necesito el monto");
+  assertEquals(anotar.result.structuredContent.con, "Jesús");
 });
 
 Deno.test("tools/call anotar_gasto y después ver_cruces, de punta a punta", async () => {

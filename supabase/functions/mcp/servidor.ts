@@ -5,6 +5,7 @@ import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@model
 import { z } from "zod";
 import type { Datos } from "./datos.ts";
 import {
+  abrirAnotar,
   anotarGasto,
   CATEGORIAS,
   type Rechazo,
@@ -58,6 +59,8 @@ export function crearServidor(datos: Datos, opciones: OpcionesServidor = {}): Mc
   const servidor = new McpServer({ name: "cruce", version: "1.0.0" }, { instructions: INSTRUCCIONES });
   const pantallas = opciones.pantallas ?? {};
   const reloj = opciones.reloj ?? relojReal;
+  // Cada pantalla se registra como recurso una sola vez, aunque la usen varias herramientas.
+  const recursos = new Set<string>();
 
   /**
    * Registra una herramienta con su pantalla si está empaquetada (MCP Apps: `_meta.ui.resourceUri` y el recurso
@@ -73,6 +76,8 @@ export function crearServidor(datos: Datos, opciones: OpcionesServidor = {}): Mc
     }
     const uri = `ui://cruce/${pantalla}`;
     registerAppTool(servidor, nombre, { ...config, _meta: { ui: { resourceUri: uri } } }, cb);
+    if (recursos.has(uri)) return;
+    recursos.add(uri);
     registerAppResource(
       servidor,
       pantalla,
@@ -127,6 +132,20 @@ export function crearServidor(datos: Datos, opciones: OpcionesServidor = {}): Mc
     inputSchema: z.object({ parche_id: z.string().describe("El parche_id que devuelve ver_parches.") }),
     annotations: SOLO_LECTURA,
   }, (entrada) => verParche(datos, entrada));
+
+  registrar(
+    "abrir_anotar",
+    {
+      title: "Abrir el formulario para anotar",
+      description: "Muestra el formulario para que la persona anote un gasto en un cruce abierto (monto, concepto, " +
+        "quién pagó, reparto y categoría). No anota nada: guardar lo hace anotar_gasto. Úsala cuando la persona " +
+        "quiera llenar el gasto ella misma; sin pantallas, el texto dice qué datos pedirle.",
+      inputSchema: z.object({ cruce_id: z.string().describe("El cruce_id que devuelve ver_cruces.") }),
+      annotations: SOLO_LECTURA,
+    },
+    (entrada) => abrirAnotar(datos, entrada),
+    "anotar.html",
+  );
 
   registrar("anotar_gasto", {
     title: "Anotar un gasto en un cruce",

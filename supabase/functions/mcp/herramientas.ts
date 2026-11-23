@@ -67,6 +67,8 @@ export interface CruceVista {
   cruce_id: string;
   con: string;
   usuario: string | null;
+  /** El color fijo de la otra persona, para la pantalla; null si borró su cuenta (se pinta gris). */
+  color: string | null;
   abierto: boolean;
   neto: number;
   frase: string;
@@ -81,6 +83,7 @@ export async function verCruces(datos: Datos): Promise<Respuesta<{ cruces: Cruce
       cruce_id: c.ledger_id,
       con: c.partner_name,
       usuario: c.partner_username,
+      color: c.partner_deleted ? null : c.partner_color,
       abierto: c.closed_at === null,
       neto,
       frase: fraseCruce(neto, c.partner_name),
@@ -119,27 +122,42 @@ async function buscarCruce(datos: Datos, cruceId: string): Promise<CruceFila | u
 export async function verMovimientos(
   datos: Datos,
   entrada: { cruce_id: string; limite?: number },
-): Promise<Respuesta<{ cruce_id: string; con: string; movimientos: MovimientoVista[] }> | Rechazo> {
+): Promise<Respuesta<MovimientosVista> | Rechazo> {
   const cruce = await buscarCruce(datos, entrada.cruce_id);
   if (!cruce) return rechazo(MENSAJES.cruceNoEncontrado);
   const pedido = Number.isFinite(entrada.limite) ? Math.trunc(entrada.limite!) : MOVIMIENTOS_POR_DEFECTO;
   const limite = Math.min(Math.max(pedido, 1), MOVIMIENTOS_MAXIMO);
-  const [filas, miNombre] = await Promise.all([datos.movimientos(cruce.ledger_id, limite), datos.miNombre()]);
+  const [filas, miNombre, saldos] = await Promise.all([
+    datos.movimientos(cruce.ledger_id, limite),
+    datos.miNombre(),
+    datos.saldos(),
+  ]);
   const movimientos = filas.map((m) => vistaMovimiento(m, datos.miId, miNombre, cruce.partner_name));
+  const neto = saldos.get(cruce.ledger_id) ?? 0;
+  const vista: MovimientosVista = {
+    cruce_id: cruce.ledger_id,
+    con: cruce.partner_name,
+    abierto: cruce.closed_at === null,
+    neto,
+    saldo: fraseCruce(neto, cruce.partner_name),
+    movimientos,
+  };
   const titulo = `Movimientos con ${cruce.partner_name}`;
-  if (movimientos.length === 0) {
-    return {
-      texto: `${titulo}: aún no hay ninguno.`,
-      datos: { cruce_id: cruce.ledger_id, con: cruce.partner_name, movimientos },
-    };
-  }
+  if (movimientos.length === 0) return { texto: `${titulo}: aún no hay ninguno.`, datos: vista };
   const lineas = movimientos.map((m) =>
     `- ${m.fecha} · ${m.concepto} (${m.categoria}) · ${formatoPesos(m.monto)} · ${m.detalle}`
   );
-  return {
-    texto: `${titulo}, del más reciente al más antiguo:\n${lineas.join("\n")}`,
-    datos: { cruce_id: cruce.ledger_id, con: cruce.partner_name, movimientos },
-  };
+  return { texto: `${titulo}, del más reciente al más antiguo:\n${lineas.join("\n")}`, datos: vista };
+}
+
+/** Lo que devuelve ver_movimientos: además de la lista, el saldo y si el cruce acepta gastos (para la pantalla). */
+export interface MovimientosVista {
+  cruce_id: string;
+  con: string;
+  abierto: boolean;
+  neto: number;
+  saldo: string;
+  movimientos: MovimientoVista[];
 }
 
 function vistaMovimiento(m: MovimientoFila, miId: string, miNombre: string, otra: string): MovimientoVista {
@@ -368,5 +386,58 @@ export async function anotarGasto(
     texto: `Anoté «${vista.concepto}» (${vista.categoria}) por ${formatoPesos(vista.monto)} el ${vista.fecha}. ` +
       `${vista.detalle}.\nSaldo con ${cruce.partner_name}: ${saldo}.`,
     datos: { gasto: vista, saldo, neto },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// abrir_anotar
+// ─────────────────────────────────────────────────────────────
+
+/** Lo que necesita el formulario de anotar (pantalla anotar.html). */
+export interface FormularioVista {
+  cruce_id: string;
+  /** El nombre de quien conectó Claude y el de la otra persona, para «¿Quién pagó?». */
+  yo: string;
+  con: string;
+  porcentaje_por_defecto: number;
+  neto: number;
+  saldo: string;
+  categorias: { id: Categoria; nombre: string }[];
+}
+
+/** El reparto en palabras: «a medias», «todo es del otro» o «70 % para quien no pagó». */
+function repartoEnPalabras(porcentajeOtro: number): string {
+  if (porcentajeOtro === 50) return "a medias";
+  if (porcentajeOtro === 100) return "todo es del otro";
+  return `${porcentajeOtro} % para quien no pagó`;
+}
+
+/**
+ * Abre el formulario para anotar en un cruce. No escribe nada: guardar lo hace anotar_gasto, con sus reglas. Sin
+ * pantallas, el texto dice qué hace falta para anotar.
+ */
+export async function abrirAnotar(
+  datos: Datos,
+  entrada: { cruce_id: string },
+): Promise<Respuesta<FormularioVista> | Rechazo> {
+  const cruce = await buscarCruce(datos, entrada.cruce_id);
+  if (!cruce) return rechazo(MENSAJES.cruceNoEncontrado);
+  if (cruce.closed_at !== null) return rechazo(MENSAJES.cruceCerrado);
+  const [miNombre, saldos] = await Promise.all([datos.miNombre(), datos.saldos()]);
+  const neto = saldos.get(cruce.ledger_id) ?? 0;
+  const vista: FormularioVista = {
+    cruce_id: cruce.ledger_id,
+    yo: miNombre,
+    con: cruce.partner_name,
+    porcentaje_por_defecto: cruce.default_other_percent,
+    neto,
+    saldo: fraseCruce(neto, cruce.partner_name),
+    categorias: (Object.entries(CATEGORIAS) as [Categoria, string][]).map(([id, nombre]) => ({ id, nombre })),
+  };
+  return {
+    texto: `Para anotar un gasto con ${vista.con} necesito el monto, el concepto, quién pagó (tú o ${vista.con}), ` +
+      `el reparto (si no lo dices, ${repartoEnPalabras(vista.porcentaje_por_defecto)}) y la categoría.\n` +
+      `Saldo de hoy: ${vista.saldo}.`,
+    datos: vista,
   };
 }

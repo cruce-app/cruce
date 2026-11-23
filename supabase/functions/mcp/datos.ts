@@ -7,6 +7,8 @@ export interface CruceFila {
   partner_id: string;
   partner_name: string;
   partner_username: string | null;
+  /** Su color fijo (profiles.avatar_color: yellow, violet, green, peach, pink o lime). */
+  partner_color: string;
   partner_deleted: boolean;
   closed_at: string | null;
   default_other_percent: number;

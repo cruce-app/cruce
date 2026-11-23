@@ -29,6 +29,7 @@ export function datosSupabase(cliente: SupabaseClient<Database>, miId: string): 
         partner_id: c.partner_id,
         partner_name: c.partner_name,
         partner_username: c.partner_username ?? null,
+        partner_color: c.partner_color,
         partner_deleted: c.partner_deleted,
         closed_at: c.closed_at ?? null,
         default_other_percent: c.default_other_percent,
