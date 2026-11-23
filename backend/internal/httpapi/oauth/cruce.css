@@ -1,0 +1,144 @@
+/* El estilo de Cruce (ios/Cruce/DesignSystem): fondo crema, bordes negros gruesos y sombras sólidas sin blur. */
+:root {
+  --crema: #fbf6ea;
+  --tinta: #111111;
+  --amarillo: #ffd12e;
+  --rosado: #ff5c8a;
+  --verde: #3dcb4a;
+  --secundario: #4a4a4a;
+  --linea: #e2dbcb;
+  --borde: 3px;
+  --sombra: 4px;
+  --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 17px;
+  line-height: 1.4;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+[hidden] { display: none !important; }
+
+.tarjeta {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 6vh;
+  padding: 24px 20px;
+  background: #ffffff;
+  border: var(--borde) solid var(--tinta);
+  border-radius: 20px;
+  box-shadow: var(--sombra) var(--sombra) 0 var(--tinta);
+}
+
+.marca {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 2px 10px;
+  background: var(--amarillo);
+  border: 2px solid var(--tinta);
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.texto { margin: 0 0 16px; color: var(--secundario); }
+.pequeno { font-size: 14px; margin-top: 16px; }
+
+label { display: block; margin-bottom: 6px; font-weight: 800; }
+
+input {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--tinta);
+  background: #ffffff;
+  border: var(--borde) solid var(--tinta);
+  border-radius: 12px;
+}
+
+input:focus { outline: 3px solid var(--amarillo); outline-offset: 2px; }
+
+.boton {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 900;
+  color: var(--tinta);
+  background: #ffffff;
+  border: var(--borde) solid var(--tinta);
+  border-radius: 14px;
+  box-shadow: var(--sombra) var(--sombra) 0 var(--tinta);
+  cursor: pointer;
+}
+
+.boton:active { transform: translate(var(--sombra), var(--sombra)); box-shadow: none; }
+.boton:disabled { opacity: 0.6; cursor: progress; }
+.boton.principal { background: var(--amarillo); }
+
+.boton.enlace {
+  display: inline;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: none;
+  text-decoration: underline;
+  font-weight: 800;
+}
+
+.boton.enlace:active { transform: none; }
+
+.botones { margin-top: 8px; }
+
+a { color: var(--tinta); font-weight: 800; }
+
+.mensaje {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: #ffe3ec;
+  border: 2px solid var(--tinta);
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.lista { list-style: none; margin: 0 0 8px; padding: 0; }
+
+.lista li {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 2px solid var(--tinta);
+  border-radius: 14px;
+  background: var(--crema);
+}
+
+.lista .nombre { margin: 0 0 4px; font-weight: 900; }
+.lista .desde { margin: 0 0 10px; font-size: 14px; color: var(--secundario); }
+.lista .boton { margin-bottom: 4px; }

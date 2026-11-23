@@ -7,6 +7,7 @@ Este servicio se encarga de lo que Supabase no resuelve solo:
 | Tarea | Estado |
 |---|---|
 | Recibir los Database Webhooks de `movements` | Listo (`POST /webhooks/movements`), desplegado en Fly.io (CP8) |
+| Páginas de OAuth para conectar Claude (`GET /oauth/consent` y `GET /oauth/conexiones`) | Listo en local (cambio `mcp-cruce`); ver "Conectar Claude" |
 | Avisarle a la otra persona con una notificación push (APNs) | Pendiente: hoy solo deja un log |
 | Recordatorio mensual para saldar | Pendiente |
 | Limpiar invitaciones vencidas | Pendiente |
@@ -49,6 +50,26 @@ curl localhost:8080/healthz
 
 3. **Comprueba:** anotar, editar o eliminar un gasto (en la app "Cruce Dev" o por la API) deja una línea en la terminal del backend. Lo que respondió el backend queda en `net._http_response`.
 
+## Conectar Claude: páginas de OAuth
+
+Supabase Auth es el servidor de autorización del MCP de Cruce (`supabase/functions/mcp`) y redirige a `site_url` + `/oauth/consent?authorization_id=…`. El backend sirve dos páginas con HTML, CSS y JS embebidos (`internal/httpapi/oauth/`):
+
+- **`GET /oauth/consent`**: sin sesión pide el correo y el código de 6 dígitos (`shouldCreateUser: false`: un correo sin cuenta no crea ninguna); con sesión muestra "<aplicación> quiere ver tus cruces y parches y anotar gastos en tus cruces." con "Permitir" y "No permitir", y vuelve a la aplicación con la `redirect_url` que devuelve Supabase.
+- **`GET /oauth/conexiones`** ("Tus conexiones"): las aplicaciones con acceso y "Quitar acceso" en cada una. Quitarlo borra sus sesiones: el MCP responde 401 desde la siguiente petición.
+- **`GET /oauth/static/{archivo}`**: `cruce.css`, `sesion.js`, `consentimiento.js` y `conexiones.js`.
+
+Todo corre en el navegador con `@supabase/supabase-js` 2.119.0 desde jsDelivr (versión fija y SRI). El servidor solo pone la configuración pública (`SUPABASE_URL` y `SUPABASE_ANON_KEY`) en atributos del `<body>`, escapados con `html/template`; nunca la `service_role`. Si falta alguna de las dos, si la URL no es un origen `http(s)` o si la clave es secreta (`sb_secret_…` o un JWT con `role: service_role`), las páginas responden 503 y el webhook sigue igual.
+
+Encabezados: `Content-Security-Policy` (`script-src 'self' https://cdn.jsdelivr.net`, `connect-src` solo el Supabase del ambiente, `frame-ancestors 'none'`, sin código en línea), `Referrer-Policy: no-referrer`, `Cache-Control: no-store` y `X-Content-Type-Options: nosniff`.
+
+En local, con Supabase corriendo (`site_url` ya apunta a `http://127.0.0.1:8088`):
+
+```bash
+PORT=8088 WEBHOOK_SECRET=dev SUPABASE_URL=http://127.0.0.1:54321 \
+  SUPABASE_ANON_KEY="$(supabase status -o env | sed -n 's/^ANON_KEY="\(.*\)"$/\1/p')" go run ./cmd/api
+claude mcp add --transport http cruce-local http://127.0.0.1:54321/functions/v1/mcp
+```
+
 ## Pruebas
 
 ```bash
@@ -65,7 +86,7 @@ go test ./...
 Hay una app de Fly por ambiente, todas con la misma máquina:
 - **La máquina:** una `shared-cpu-1x` de 256 MB, siempre prendida, en San José (`sjc`), descrita en `fly.toml`. Cuesta unos US$2 al mes.
 - **El nombre:** se pasa con `-a`. Aquí se usa `cruce-api-testing`; si ese nombre ya está tomado en Fly, usa otro y cámbialo en los comandos.
-- **Prod:** se crea igual cuando exista su proyecto de Supabase.
+- **Prod:** todavía no tiene app. La necesita el MCP de Cruce (cambio `mcp-cruce`): la página de consentimiento de prod vive en `cruce-api-prod` (`https://cruce-api-prod.fly.dev`, que va como Site URL del proyecto de prod). Se crea igual (`fly apps create cruce-api-prod`), con sus secretos (`SUPABASE_URL` y `SUPABASE_ANON_KEY` de prod y su `WEBHOOK_SECRET`) y el webhook de `movements` apuntando a ella.
 
 ### Una sola vez
 
@@ -90,6 +111,8 @@ Las dos líneas que pegas (así el secreto no queda en el historial de la termin
 WEBHOOK_SECRET=<el secreto>
 SUPABASE_URL=https://pqdjiecynyjnianslikp.supabase.co
 ```
+
+Para las páginas de OAuth (cambio `mcp-cruce`) se agrega `SUPABASE_ANON_KEY=<la clave anónima o publicable de ese proyecto>`. Es pública por diseño, pero se pone con `fly secrets import` como las demás.
 
 - `SUPABASE_SERVICE_ROLE_KEY` se agrega en el CP9, cuando el backend la use.
 - Para rotar el secreto, vuelve a correr `fly secrets import` y edita el header del webhook en Supabase.

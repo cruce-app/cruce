@@ -25,7 +25,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := httpapi.NewServer(cfg.WebhookSecret, notify.LogNotifier{Logger: logger}, logger)
+	// Las páginas de OAuth (conectar Claude) solo reciben la URL y la clave anónima: nunca la service_role.
+	server := httpapi.NewServer(cfg.WebhookSecret, notify.LogNotifier{Logger: logger}, logger).
+		WithConsent(httpapi.ConsentConfig{SupabaseURL: cfg.SupabaseURL, AnonKey: cfg.SupabaseAnonKey})
+	if cfg.SupabaseURL == "" || cfg.SupabaseAnonKey == "" {
+		logger.Warn("sin SUPABASE_URL o SUPABASE_ANON_KEY: las páginas de OAuth responden 503")
+	}
 	httpServer := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           server.Routes(),

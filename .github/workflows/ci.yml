@@ -1,4 +1,4 @@
-# Revisa backend, base de datos y lógica en cada cambio. Solo runners de Linux y sin secretos.
+# Revisa backend, base de datos, el servidor MCP y la lógica en cada cambio. Solo runners de Linux y sin secretos.
 # Cada trabajo corre solo si cambió su carpeta (o este archivo); si no, queda "skipped".
 name: CI
 
@@ -22,6 +22,7 @@ jobs:
       backend: ${{ steps.filter.outputs.backend }}
       supabase: ${{ steps.filter.outputs.supabase }}
       core: ${{ steps.filter.outputs.core }}
+      functions: ${{ steps.filter.outputs.functions }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -33,10 +34,15 @@ jobs:
               - '.github/workflows/ci.yml'
             supabase:
               - 'supabase/**'
+              - 'scripts/llave-local.sh'
               - '.github/workflows/ci.yml'
             core:
               - 'ios/Packages/CruceCore/**'
               - '.swift-format'
+              - '.github/workflows/ci.yml'
+            functions:
+              - 'supabase/functions/**'
+              - 'supabase/functions/mcp/ui/**'
               - '.github/workflows/ci.yml'
 
   backend:
@@ -79,6 +85,9 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.122.0
+      # config.toml firma los tokens con supabase/signing_keys.json, que no está en git: se genera una clave de prueba.
+      - name: clave de firma
+        run: scripts/llave-local.sh
       # Solo Postgres y Auth: las pruebas pgTAP hablan SQL y no usan la API HTTP.
       - name: supabase start
         run: supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor,postgrest,kong
@@ -99,3 +108,38 @@ jobs:
         run: swift format lint --strict --recursive Package.swift Sources Tests
       - name: swift test
         run: swift test
+
+  functions:
+    needs: changes
+    if: needs.changes.outputs.functions == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions/mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+      - name: deno fmt
+        run: deno fmt --check
+      - name: deno lint
+        run: deno lint
+      # La función y el código de las pantallas (ui/src), que usa los mismos tipos de herramientas.ts.
+      - name: deno check
+        run: deno check index.ts ui/src/*.ts
+      # Pesos, frases y herramientas con un doble de la base: no necesita Supabase.
+      - name: deno test
+        run: deno test
+      # Las pantallas: volver a empaquetarlas no puede cambiar ui_bundle.ts (si cambia, faltó correr el build).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: supabase/functions/mcp/ui/package-lock.json
+      - name: ui_bundle.ts al día
+        working-directory: supabase/functions/mcp/ui
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          git diff --exit-code -- ../ui_bundle.ts
