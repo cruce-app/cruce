@@ -165,11 +165,25 @@ fi
 # 2. tools/list: cinco herramientas y solo anotar_gasto escribe.
 lista="$(mcp_rpc "$joan" tools/list | json \
     '" ".join(sorted(t["name"] + ("=escribe" if not t["annotations"]["readOnlyHint"] else "") for t in d["result"]["tools"]))')"
-if [[ "$lista" == "anotar_gasto=escribe ver_cruces ver_movimientos ver_parche ver_parches" ]]; then
+if [[ "$lista" == "abrir_anotar anotar_gasto=escribe ver_cruces ver_movimientos ver_parche ver_parches" ]]; then
     ok "tools/list: $lista"
 else
     falla "tools/list: $lista"
 fi
+
+
+# Pantallas (tareas 4.1 a 4.3): las tres herramientas declaran la suya y el recurso es un HTML de MCP Apps.
+pantallas="$(mcp_rpc "$joan" tools/list | json \
+    '" ".join(sorted(t["name"] + "=" + t["_meta"]["ui"]["resourceUri"] for t in d["result"]["tools"] if t.get("_meta", {}).get("ui")))')"
+if [[ "$pantallas" == "abrir_anotar=ui://cruce/anotar.html ver_cruces=ui://cruce/cruces.html ver_movimientos=ui://cruce/movimientos.html" ]]; then
+    ok "pantallas: $pantallas"
+else
+    falla "pantallas: $pantallas"
+fi
+for p in cruces movimientos anotar; do
+    tipo="$(mcp_rpc "$joan" resources/read "{\"uri\":\"ui://cruce/$p.html\"}" | json 'd["result"]["contents"][0]["mimeType"] + " " + str(d["result"]["contents"][0]["text"].startswith("<!doctype html>"))')"
+    [[ "$tipo" == "text/html;profile=mcp-app True" ]] && ok "recurso $p.html: $tipo" || falla "recurso $p.html: $tipo"
+done
 
 # 3. ver_cruces: el ejemplo canónico y el de Pedro cerrado.
 cruces="$(mcp_rpc "$joan" tools/call '{"name":"ver_cruces","arguments":{}}' | texto_de)"
@@ -223,6 +237,10 @@ ajeno="$(mcp_rpc "$ana" tools/call "{\"name\":\"anotar_gasto\",\"arguments\":{\"
 [[ "$ajeno" == "ERROR: No encontré ese cruce." ]] && ok "Ana no anota en el cruce de Joan y Jesús" || falla "anotar ajeno: $ajeno"
 cuantos="$(rest "$jesus" GET "movements?ledger_id=eq.$con_jesus&select=id" | json 'len(d)')"
 [[ "$cuantos" == "3" ]] && ok "en el cruce quedan 3 movimientos" || falla "movimientos en el cruce: $cuantos"
+
+
+formulario="$(mcp_rpc "$joan" tools/call "{\"name\":\"abrir_anotar\",\"arguments\":{\"cruce_id\":\"$con_jesus\"}}" | texto_de)"
+grep -q "^Para anotar un gasto con Jesús necesito el monto" <<<"$formulario" && ok "abrir_anotar: texto completo" || falla "abrir_anotar: $formulario"
 
 # 8. Una cuenta borrada ya no entra, aunque su token siga vigente.
 rest "$ana" POST rpc/delete_my_account '{}' >/dev/null
