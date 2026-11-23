@@ -8,6 +8,16 @@
   var VENCIDA = "Esta solicitud ya no sirve. Vuelve a conectar Cruce desde Claude.";
   var autorizacion = new URLSearchParams(window.location.search).get("authorization_id");
 
+  // El sitio al que vuelve el navegador después de permitir. Cualquier aplicación se registra sola con el nombre que
+  // quiera; el sitio es lo que deja ver que una que dice ser Claude no lo es.
+  function sitio(direccion) {
+    try {
+      return new URL(direccion).host;
+    } catch (_) {
+      return "";
+    }
+  }
+
   function vencida() {
     cruce.mostrar("");
     cruce.avisar(VENCIDA);
@@ -36,7 +46,10 @@
       // Ya había dado permiso antes: Supabase devuelve directo a dónde volver.
       if (!r.data.authorization_id) return volver(r);
       var aplicacion = (r.data.client && r.data.client.name) || "Una aplicación";
+      var regreso = sitio(r.data.redirect_uri);
+      if (!regreso) return vencida();
       $("pregunta").textContent = aplicacion + " quiere ver tus cruces y parches y anotar gastos en tus cruces.";
+      $("regreso").textContent = "Al permitir, vuelves a " + regreso + ".";
       $("quien").textContent = sesion.user.email;
       cruce.mostrar("paso-permiso");
     }, vencida);

@@ -105,6 +105,8 @@ func TestConsentPageTexts(t *testing.T) {
 		"Esta solicitud ya no sirve. Vuelve a conectar Cruce desde Claude.",
 		"shouldCreateUser: false",
 		"getAuthorizationDetails",
+		"Al permitir, vuelves a ",
+		"redirect_uri",
 		"approveAuthorization",
 		"denyAuthorization",
 	} {
