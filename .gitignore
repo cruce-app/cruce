@@ -38,3 +38,6 @@ backups/
 # Volcados de memoria (core dumps) de procesos que se caen, p. ej. swift test en Docker
 core
 core.[0-9]*
+
+# Clave de firma de los tokens en local (supabase gen signing-key); nunca se sube
+supabase/signing_keys.json

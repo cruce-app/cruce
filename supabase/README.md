@@ -71,6 +71,37 @@ Cada proyecto tiene su propia contraseña de la base: la pide el CLI, o la lee d
 5. En `ios/Config.xcconfig`, llena `SUPABASE_URL[config=Release]` con `https:/$()/<ref>.supabase.co` y `SUPABASE_ANON_KEY[config=Release]` con la clave anon de `supabase projects api-keys --project-ref <ref>`.
 6. Compila el esquema `Cruce Prod` y entra con tu correo.
 
+## MCP de Cruce: OAuth y la función `mcp`
+
+Claude se conecta a Cruce con el servidor MCP de `supabase/functions/mcp/` (cambio `mcp-cruce`). Cada herramienta corre con el token de la persona que aprobó el acceso, así que RLS decide qué ve y qué anota, igual que en la app.
+
+**Clave de firma en local (una sola vez por Mac).** `@supabase/server` solo acepta tokens firmados con una clave asimétrica (ES256 o RS256), y `config.toml` la lee de `supabase/signing_keys.json`, que está en `.gitignore` y nunca se sube. Desde la raíz del repo:
+
+```bash
+echo '[]' > supabase/signing_keys.json                 # el CLI necesita que el archivo exista
+supabase gen signing-key --algorithm ES256 --yes       # agrega la clave privada al archivo
+supabase stop && supabase start                        # Auth y PostgREST firman y verifican con ella
+```
+
+- Con la clave nueva, la `ANON_KEY` de `supabase status -o env` cambia (ahora es ES256) y la anterior (HS256) ya no sirve en PostgREST. Copia la nueva en `SUPABASE_ANON_KEY[config=Debug]` de `ios/Config.xcconfig`.
+- Para revisar: un token nuevo (`/auth/v1/verify`) dice `"alg":"ES256"` en su encabezado, y `curl http://127.0.0.1:54321/auth/v1/.well-known/jwks.json` muestra la clave pública.
+
+**Servidor OAuth en local** (ya está en `config.toml`): `[auth.oauth_server]` activo con registro automático de clientes (`allow_dynamic_registration`, Claude usa "Register automatically") y la página de consentimiento en `site_url` + `/oauth/consent`, con `site_url = "http://127.0.0.1:8088"` (el backend de Go). `[functions.mcp] verify_jwt = false` deja pasar el descubrimiento sin token; la función revisa el token ella misma.
+
+- Metadatos del servidor de autorización: `curl http://127.0.0.1:54321/auth/v1/.well-known/oauth-authorization-server` (trae `registration_endpoint`). En local, la forma con la ruta al final (`/.well-known/oauth-authorization-server/auth/v1`) responde 404 en Kong; la de arriba y `/auth/v1/.well-known/openid-configuration` sí responden.
+- Metadatos del recurso protegido: `curl http://127.0.0.1:54321/functions/v1/mcp/oauth-protected-resource`.
+
+**La función `mcp`.** La sirve `supabase start` en `http://127.0.0.1:54321/functions/v1/mcp` (Streamable HTTP, sin estado). Sin token responde 401 con `WWW-Authenticate: Bearer resource_metadata="…"`. Herramientas: `ver_cruces`, `ver_movimientos`, `ver_parches`, `ver_parche` (las cuatro de solo lectura) y `anotar_gasto` (la única que escribe). Con una cuenta borrada o un acceso quitado, responde 401 aunque el token siga vigente.
+
+```bash
+cd supabase/functions/mcp && deno fmt --check && deno lint && deno test   # pesos, frases y herramientas, sin base
+scripts/mcp-local.sh                                                      # recorrido contra Supabase local (mailpit)
+```
+
+- Si cambias el esquema de la base, regenera los tipos: `supabase gen types typescript --local > supabase/functions/mcp/database.types.ts`.
+- El runtime local a veces no toma un cambio de la función de inmediato; `docker restart supabase_edge_runtime_cruce` lo fuerza.
+- Para desplegarla en la nube: `scripts/functions-deploy.sh testing` (o `prod`, que pide confirmación). Antes, en el panel de ese proyecto: claves de firma asimétricas (JWT Keys), el servidor OAuth con registro automático (Authentication → OAuth Server) y el Site URL del backend de ese ambiente (`https://cruce-api-testing.fly.dev`).
+
 ## Pruebas
 
 Son pruebas [pgTAP](https://pgtap.org) en `supabase/tests/`. Cada archivo corre en una transacción que se deshace al final, así que no dejan datos.
@@ -87,6 +118,7 @@ Son pruebas [pgTAP](https://pgtap.org) en `supabase/tests/`. Cada archivo corre 
 | `08_movimientos.sql` | Movimientos desde la app (rol `authenticated`): los dos del cruce editan y eliminan (borrado suave), nadie anota a nombre de otro, un tercero no ve ni toca nada (ni poniendo de pagador a un miembro) y guardar dos veces el mismo `id` deja una sola fila |
 | `20_limpiar_invitaciones.sql` | La limpieza diaria: borra las invitaciones vencidas hace más de 30 días y los intentos de más de un día; conserva las vencidas recientes (siguen diciendo `expired`) y las canjeadas; quien tiene un cruce pendiente recibe un código nuevo para ese cruce; nadie la corre desde la app; el trabajo está en `cron.job` |
 | `21_como_pagarme.sql` | Cómo te pagan (Nequi o llave Bre-B): cada quien guarda y borra el suyo; Nequi y llave inválidos y uno sin el otro se rechazan; nadie más lo cambia; la pareja lo ve en `my_cruces` y los del parche en `participant_payment`; un extraño y `anon` no lo ven; al borrar la cuenta se borra |
+| `22_mcp_lectura_parches.sql` | `parche_summary` para el MCP: quien es del parche ve a las personas, su saldo y el mismo "Para saldar" de `parche_settlement_plan`; quien no es del parche y un parche que no existe dan `null`; sin sesión, `anon` y una cuenta borrada no leen nada |
 
 Para actuar como una persona, las pruebas usan `set local role authenticated` y fijan `request.jwt.claims` con su `sub`, que es lo que lee `auth.uid()`.
 

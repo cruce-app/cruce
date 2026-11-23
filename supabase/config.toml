@@ -157,17 +157,20 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+# Local: el backend de Go (PORT=8088), que sirve la página de consentimiento de OAuth (/oauth/consent).
+site_url = "http://127.0.0.1:8088"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+additional_redirect_urls = ["http://127.0.0.1:8088/oauth/consent", "http://127.0.0.1:8088/oauth/conexiones"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
 # jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
-# signing_keys_path = "./signing_keys.json"
+# Clave ES256 para firmar los tokens en local (@supabase/server rechaza HS256). La genera cada quien con
+# `supabase gen signing-key --algorithm ES256` (ver supabase/README.md) y está en .gitignore.
+signing_keys_path = "./signing_keys.json"
 # If disabled, the refresh token will never expire.
 enable_refresh_token_rotation = true
 # Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
@@ -376,12 +379,18 @@ enabled = false
 
 # OAuth server configuration
 [auth.oauth_server]
-# Enable OAuth server functionality
-enabled = false
+# Servidor OAuth 2.1 para conectar Claude al MCP de Cruce (cambio mcp-cruce). La página de consentimiento la sirve el
+# backend de Go en site_url + authorization_url_path.
+enabled = true
 # Path for OAuth consent flow UI
 authorization_url_path = "/oauth/consent"
-# Allow dynamic client registration
-allow_dynamic_registration = false
+# Claude se registra solo ("Register automatically").
+allow_dynamic_registration = true
+
+# El servidor MCP: el descubrimiento (/.well-known/oauth-protected-resource) llega sin token, y la función revisa el
+# token ella misma (@supabase/server).
+[functions.mcp]
+verify_jwt = false
 
 [edge_runtime]
 enabled = true
