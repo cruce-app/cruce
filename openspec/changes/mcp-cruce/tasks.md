@@ -9,7 +9,7 @@
 ## 2. Servidor MCP (Edge Function `mcp`)
 
 - [ ] 2.1 Prueba inicial: la función con `createMcpHandler` (`@modelcontextprotocol/server@^2`), `@supabase/server` y una herramienta con `_meta.ui` registrada con `@modelcontextprotocol/ext-apps/server`. Si los helpers no sirven con v2, se declara `_meta.ui` a mano (design D2). Se verifica con `supabase functions serve`: sin token, 401 con `WWW-Authenticate`; con token, `tools/list` muestra `_meta.ui.resourceUri`
-- [ ] 2.2 `pesos.ts` y `frases.ts` con pruebas de Deno que repiten los casos de Swift (ejemplo canónico, $0, U+2212, frases de cruce y de parche). Se verifica con `deno test` en verde
+- [x] 2.2 `pesos.ts` y `frases.ts` con pruebas de Deno que repiten los casos de Swift (ejemplo canónico, $0, U+2212, frases de cruce y de parche). Se verifica con `deno test` en verde
 - [ ] 2.3 `ver_cruces`: `my_cruces()` + `ledger_balances`, con la frase de la app (primero se confirma desde qué miembro mide el neto la vista). Pruebas con un cliente falso; se verifica también contra local con el ejemplo canónico ("Le debes $20.000 a Jesús" desde Joan)
 - [ ] 2.4 `ver_movimientos` (vigentes, del más reciente al más antiguo, 20 por defecto y hasta 100) y "No encontré ese cruce." para un cruce ajeno. Pruebas de Deno y contra local
 - [ ] 2.5 `ver_parches` y `ver_parche` (con `parche_summary`). Pruebas de Deno y, contra local, el "Para saldar" de un parche de ejemplo igual al de la app
