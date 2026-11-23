@@ -9,7 +9,7 @@
 ## 2. Nube
 
 - [x] 2.1 Subir la migración a testing (`scripts/db-push.sh testing`) y ver el trabajo `limpiar-invitaciones` en Integrations → Cron (aplicada sin errores el 18 nov 2026; `cron.schedule` crea el trabajo)
-- [ ] 2.2 Al día siguiente, revisar en testing que la última corrida quedó en `succeeded` (`cron.job_run_details`)
+- [x] 2.2 Al día siguiente, revisar en testing que la última corrida quedó en `succeeded` (`cron.job_run_details`): del 18 al 22 nov 2026, cinco corridas a las 08:00 UTC, todas `succeeded`
 - [x] 2.3 Subir la migración a prod (`scripts/db-push.sh prod`, que respalda antes; aplicada el 18 nov 2026)
 
 ## Workflow follow-up
