@@ -3,6 +3,7 @@
 // La app habla directo con Supabase para leer y escribir movimientos.
 // Este servicio solo hace lo que Supabase no resuelve solo:
 //   - recibir los Database Webhooks de la tabla movements y avisar a la otra persona;
+//   - servir las páginas de OAuth para conectar Claude (/oauth/consent y /oauth/conexiones, en oauth.go);
 //   - (próximo) recordatorio mensual para saldar y limpieza de invitaciones vencidas.
 package httpapi
 
@@ -23,6 +24,7 @@ type Server struct {
 	webhookSecret string
 	notifier      notify.Notifier
 	logger        *slog.Logger
+	consent       ConsentConfig
 }
 
 func NewServer(webhookSecret string, notifier notify.Notifier, logger *slog.Logger) *Server {
@@ -33,6 +35,7 @@ func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", s.handleHealth)
 	mux.HandleFunc("POST /webhooks/movements", s.handleMovementWebhook)
+	s.registerOAuthRoutes(mux)
 	return mux
 }
 

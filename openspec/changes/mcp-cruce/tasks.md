@@ -18,8 +18,8 @@
 
 ## 3. Página de consentimiento (backend de Go)
 
-- [ ] 3.1 Pruebas de Go (rojo primero): `GET /oauth/consent` y `GET /oauth/conexiones` responden HTML con CSP, `Referrer-Policy`, `Cache-Control: no-store`, la URL y la clave anónima del ambiente y nunca la `service_role`; `SUPABASE_ANON_KEY` llega en la configuración. Se verifica con `go test ./...`
-- [ ] 3.2 Las rutas, la configuración y el HTML/JS embebidos: correo y código (`shouldCreateUser: false`), "<aplicación> quiere ver tus cruces y parches y anotar gastos en tus cruces.", "Permitir"/"No permitir" y los mensajes de la spec (código que no sirve, correo sin cuenta y solicitud vencida); "Tus conexiones" con "Quitar acceso". Se verifica con `gofmt`, `go vet`, `staticcheck` y `go test` en verde
+- [x] 3.1 Pruebas de Go (rojo primero): `GET /oauth/consent` y `GET /oauth/conexiones` responden HTML con CSP, `Referrer-Policy`, `Cache-Control: no-store`, la URL y la clave anónima del ambiente y nunca la `service_role`; `SUPABASE_ANON_KEY` llega en la configuración. Se verifica con `go test ./...`
+- [x] 3.2 Las rutas, la configuración y el HTML/JS embebidos: correo y código (`shouldCreateUser: false`), "<aplicación> quiere ver tus cruces y parches y anotar gastos en tus cruces.", "Permitir"/"No permitir" y los mensajes de la spec (código que no sirve, correo sin cuenta y solicitud vencida); "Tus conexiones" con "Quitar acceso". Se verifica con `gofmt`, `go vet`, `staticcheck` y `go test` en verde
 - [ ] 3.3 Recorrido local completo: `claude mcp add --transport http cruce-local http://127.0.0.1:54321/functions/v1/mcp`, autorizar en `http://127.0.0.1:8088/oauth/consent` con el código de mailpit, pedir el saldo, anotar un gasto que aparece en el simulador y quitar el acceso en "Tus conexiones"
 
 ## 4. Pantallas (MCP App)

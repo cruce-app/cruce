@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Conectar Cruce</title>
+  <link rel="stylesheet" href="/oauth/static/cruce.css">
+</head>
+<body data-supabase-url="{{.SupabaseURL}}" data-anon-key="{{.AnonKey}}">
+  <main class="tarjeta">
+    <p class="marca">Cruce</p>
+
+    <section id="cargando">
+      <p class="texto">Un momento…</p>
+    </section>
+
+    <!-- Sin sesión: el correo y después el código, como en la app. -->
+    <form id="paso-correo" hidden novalidate>
+      <h1>Entra a Cruce</h1>
+      <p class="texto">Escribe el correo con el que entras a la app. Te mandamos un código de 6 dígitos.</p>
+      <label for="correo">Correo</label>
+      <input id="correo" type="email" autocomplete="email" inputmode="email" required>
+      <button type="submit" class="boton principal">Enviar el código</button>
+    </form>
+
+    <form id="paso-codigo" hidden novalidate>
+      <h1>Revisa tu correo</h1>
+      <p class="texto">Escribe el código de 6 dígitos que te llegó a <strong id="correo-enviado"></strong>.</p>
+      <label for="codigo">Código</label>
+      <input id="codigo" type="text" autocomplete="one-time-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required>
+      <button type="submit" class="boton principal">Entrar</button>
+      <button type="button" id="otro-codigo" class="boton enlace">Pedir otro código</button>
+    </form>
+
+    <!-- Con sesión: qué aplicación pide acceso. -->
+    <section id="paso-permiso" hidden>
+      <h1 id="pregunta"></h1>
+      <p class="texto">Puedes quitarle el acceso cuando quieras en <a href="/oauth/conexiones">Tus conexiones</a>.</p>
+      <div class="botones">
+        <button type="button" id="permitir" class="boton principal">Permitir</button>
+        <button type="button" id="no-permitir" class="boton">No permitir</button>
+      </div>
+      <p class="texto pequeno">Entraste como <span id="quien"></span>. <button type="button" id="salir" class="boton enlace">No soy yo</button></p>
+    </section>
+
+    <p id="mensaje" class="mensaje" role="alert" hidden></p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+  <script src="/oauth/static/sesion.js"></script>
+  <script src="/oauth/static/consentimiento.js"></script>
+</body>
+</html>

@@ -11,7 +11,9 @@ type Config struct {
 	Port string
 	// URL del proyecto de Supabase (https://xxxx.supabase.co).
 	SupabaseURL string
-	// Llave service_role. Solo vive en el servidor, nunca en la app.
+	// Clave anónima (o publicable) del ambiente. Es pública por diseño: la usan las páginas de OAuth en el navegador.
+	SupabaseAnonKey string
+	// Llave service_role. Solo vive en el servidor, nunca en la app ni en una página.
 	SupabaseServiceRoleKey string
 	// Secreto compartido con los Database Webhooks de Supabase.
 	WebhookSecret string
@@ -21,6 +23,7 @@ func Load() (Config, error) {
 	cfg := Config{
 		Port:                   getenv("PORT", "8080"),
 		SupabaseURL:            os.Getenv("SUPABASE_URL"),
+		SupabaseAnonKey:        os.Getenv("SUPABASE_ANON_KEY"),
 		SupabaseServiceRoleKey: os.Getenv("SUPABASE_SERVICE_ROLE_KEY"),
 		WebhookSecret:          os.Getenv("WEBHOOK_SECRET"),
 	}
