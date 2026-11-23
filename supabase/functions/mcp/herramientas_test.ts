@@ -379,6 +379,36 @@ Deno.test("anotar_gasto: un porcentaje pedido se guarda como porcentaje", async 
   assertEquals([guardado.split_type, guardado.other_share_percent], ["percentage", 30]);
 });
 
+Deno.test("anotar_gasto: porcentaje_otro sin reparto se guarda como porcentaje", async () => {
+  const datos = new DatosEnMemoria(JOAN, "Joan", [cruce(CON_JESUS, JESUS, "Jesús", "jesus")]);
+  const r = await anotarGasto(datos, {
+    cruce_id: CON_JESUS,
+    monto: 10_000,
+    concepto: "Regalo",
+    quien_pago: "yo",
+    porcentaje_otro: 30,
+  }, reloj);
+  assert(!r.error);
+  const guardado = datos.movimientosGuardados[0];
+  assertEquals([guardado.split_type, guardado.other_share_percent], ["percentage", 30]);
+});
+
+Deno.test("anotar_gasto: porcentaje_otro con a medias o todo del otro no guarda nada", async () => {
+  for (const reparto of ["a_medias", "todo_del_otro"] as const) {
+    const datos = new DatosEnMemoria(JOAN, "Joan", [cruce(CON_JESUS, JESUS, "Jesús", "jesus")]);
+    const r = await anotarGasto(datos, {
+      cruce_id: CON_JESUS,
+      monto: 10_000,
+      concepto: "Regalo",
+      quien_pago: "yo",
+      reparto,
+      porcentaje_otro: 30,
+    }, reloj);
+    assertEquals(r, { texto: MENSAJES.repartoConPorcentaje, error: true });
+    assertEquals(datos.movimientosGuardados.length, 0);
+  }
+});
+
 Deno.test("anotar_gasto: monto fuera de rango no guarda nada", async () => {
   for (const monto of [1_500_000_000, 0, -5, 1000.5, 1_000_000_000]) {
     const datos = new DatosEnMemoria(JOAN, "Joan", [cruce(CON_JESUS, JESUS, "Jesús", "jesus")]);

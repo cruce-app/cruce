@@ -164,7 +164,7 @@ export function crearServidor(datos: Datos, opciones: OpcionesServidor = {}): Mc
           "(un préstamo). Sin reparto se usa el del cruce.",
       ),
       porcentaje_otro: z.number().optional().describe(
-        "Con reparto «porcentaje»: lo que le toca a quien no pagó, 0 a 100.",
+        "Lo que le toca a quien no pagó, 0 a 100. Va con reparto «porcentaje» (o sin reparto); con otro reparto se rechaza.",
       ),
       categoria: z.enum(Object.keys(CATEGORIAS) as [keyof typeof CATEGORIAS, ...(keyof typeof CATEGORIAS)[]])
         .optional().describe("Comida, mercado, transporte, hogar, ocio, prestamo u otro (por defecto)."),

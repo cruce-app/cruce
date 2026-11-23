@@ -65,6 +65,11 @@ encontré ese cruce.").
 - **WHEN** Claude intenta anotar $1.500.000.000
 - **THEN** no se guarda nada y la herramienta responde "El monto debe ser de $1 a $999.999.999."
 
+#### Scenario: Porcentaje con otro reparto
+- **WHEN** Claude pide anotar "a medias" y también un porcentaje para quien no pagó
+- **THEN** no se guarda nada y la herramienta responde que el porcentaje solo va con el reparto por porcentaje; un
+  porcentaje sin reparto se anota como reparto por porcentaje
+
 ### Requirement: Solo anotar escribe
 Anotar un gasto SHALL ser la única herramienta que escribe y SHALL declararse como una que escribe, para que Claude
 pida confirmación antes de usarla. Las demás MUST declararse de solo lectura.

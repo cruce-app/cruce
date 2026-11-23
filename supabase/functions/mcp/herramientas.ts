@@ -21,6 +21,7 @@ export const MENSAJES = {
   cruceNoEncontrado: "No encontré ese cruce.",
   parcheNoEncontrado: "No encontré ese parche.",
   porcentaje: "El porcentaje para quien no pagó debe ser un número entero de 0 a 100.",
+  repartoConPorcentaje: "porcentaje_otro solo va con el reparto «porcentaje»: quita uno de los dos.",
   fecha: "La fecha debe ir como AAAA-MM-DD (por ejemplo 2026-11-22).",
   noSePudoAnotar: "No pude anotar el gasto. Intenta de nuevo en un momento.",
 } as const;
@@ -331,10 +332,15 @@ export async function anotarGasto(
   // Como char_length en Postgres: se cuentan caracteres, no unidades de UTF-16.
   const largo = [...concepto].length;
   if (largo < 1 || largo > 80) return rechazo(MENSAJES.concepto);
+  // Un porcentaje sin reparto es un reparto por porcentaje; con otro reparto, se rechaza en vez de ignorarlo.
+  const repartoPedido = entrada.reparto ?? (entrada.porcentaje_otro !== undefined ? "porcentaje" : undefined);
+  if (repartoPedido !== "porcentaje" && entrada.porcentaje_otro !== undefined) {
+    return rechazo(MENSAJES.repartoConPorcentaje);
+  }
   let porcentajePedido: number | undefined;
-  if (entrada.reparto === "a_medias") porcentajePedido = 50;
-  if (entrada.reparto === "todo_del_otro") porcentajePedido = 100;
-  if (entrada.reparto === "porcentaje") {
+  if (repartoPedido === "a_medias") porcentajePedido = 50;
+  if (repartoPedido === "todo_del_otro") porcentajePedido = 100;
+  if (repartoPedido === "porcentaje") {
     const n = entrada.porcentaje_otro;
     if (n === undefined || !Number.isInteger(n) || n < 0 || n > 100) return rechazo(MENSAJES.porcentaje);
     porcentajePedido = n;
