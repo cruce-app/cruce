@@ -10,6 +10,7 @@ import { pipeline } from "@supabase/middleware";
 import { withOAuthProtectedResource, withSupabase } from "@supabase/server";
 import { createMcpHandler } from "@modelcontextprotocol/server";
 import type { Database } from "./database.types.ts";
+import { sinAcceso } from "./acceso.ts";
 import { datosSupabase } from "./datos_supabase.ts";
 import { crearServidor } from "./servidor.ts";
 import { PANTALLAS } from "./ui_bundle.ts";
@@ -22,10 +23,10 @@ export default {
       // Auth ya no encuentra al usuario o la sesión. El 401 lleva WWW-Authenticate (withOAuthProtectedResource).
       const { error } = await supabase.auth.getUser();
       if (error) {
-        const sinAcceso = error.status === 401 || error.status === 403 || error.status === 404;
-        if (!sinAcceso) console.error("MCP: no se pudo revisar la sesión", error.status, error.message);
-        return Response.json({ error: sinAcceso ? "invalid_token" : "temporarily_unavailable" }, {
-          status: sinAcceso ? 401 : 503,
+        const sinPermiso = sinAcceso(error);
+        if (!sinPermiso) console.error("MCP: no se pudo revisar la sesión", error.status, error.message);
+        return Response.json({ error: sinPermiso ? "invalid_token" : "temporarily_unavailable" }, {
+          status: sinPermiso ? 401 : 503,
         });
       }
       // Con auth: "user", withSupabase siempre deja userClaims; si no, es un 401 como cualquier token inválido.
