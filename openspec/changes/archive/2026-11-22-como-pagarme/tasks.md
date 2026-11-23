@@ -28,7 +28,7 @@
 
 ## 5. Nube y prueba en el teléfono
 
-- [ ] 5.1 Joan sube la migración a testing (`scripts/db-push.sh testing`, hecho el 18 nov 2026) y la prueba en "Cruce Test"
+- [x] 5.1 Joan sube la migración a testing (`scripts/db-push.sh testing`, 18 nov 2026) y la prueba en "Cruce Test" (funcionó, 22 nov 2026)
 - [x] 5.2 Joan sube la migración a prod (`scripts/db-push.sh prod`, 18 nov 2026)
 
 ## Workflow follow-up

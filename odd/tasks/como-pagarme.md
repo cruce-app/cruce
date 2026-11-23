@@ -17,7 +17,7 @@ Pruebas: pgTAP (`supabase test db --local`, Docker de Kiri en `~/.kiri/bin`) y S
 
 | ID | Specs | Ruta | Estado | Commit |
 |---|---|---|---|---|
-| T1 | S1–S8 | delegada (un escritor, por el respaldo de contexto: la sesión principal ya es larga) | hecha; migración en testing y prod (falta probar en "Cruce Test") | `bd059b4` (base), `52212a6` (CruceCore), `66f5a63` (app), docs en el commit siguiente |
+| T1 | S1–S8 | delegada (un escritor, por el respaldo de contexto: la sesión principal ya es larga) | hecha; en testing y prod, probada en "Cruce Test" | `bd059b4` (base), `52212a6` (CruceCore), `66f5a63` (app), docs en el commit siguiente |
 | T2 | S1–S8 | verificador independiente (Risk: item 2, dato personal y RLS) | hecha; sin bloqueos | — |
 
 ## Log
@@ -30,3 +30,4 @@ Pruebas: pgTAP (`supabase test db --local`, Docker de Kiri en `~/.kiri/bin`) y S
   - Siguiente: T2 (verificador) y, después, Joan sube la migración con `scripts/db-push.sh testing` y `prod`.
 - **L3 (18 nov 2026), verificador de T2:** S1 a S8 pasan, sin bloqueos. Probó con SQL dentro de `begin … rollback`: un desconocido no lo ve por `profiles`, `my_cruces()` ni `participant_payment` (tampoco con filas falsas); `anon` no ve nada; nadie edita el de otro; borrar la cuenta lo deja en null. `my_cruces()` conserva sus 15 columnas y sus permisos. `supabase test db --local`: 537 en verde; `swift test`: 407 en verde. Avisos: la pareja de un cruce cerrado lo sigue viendo (igual que el resto del perfil hoy); una cuenta borrada con la sesión viva (hasta una hora) puede leer el de su expareja por `my_cruces()` (ya pasaba con el nombre); emojis compuestos cuentan distinto en la app y en la base; el teléfono lo guarda en la caché como los nombres.
 - **L4 (18 nov 2026):** PR #4 fusionado en main (`9c3f24b`; la CI falló una vez por una caída de GitHub y pasó al volver a correrla). Joan subió `20261118110000_como_pagarme.sql` a testing y a prod con `scripts/db-push.sh` ("Listo, ya quedó en prod"). Falta: probarlo en "Cruce Test" (tarea 5.1) y archivar `como-pagarme`.
+- **L5 (22 nov 2026), Joan:** "Listo probamos en cruce test y funciono perfecto". Tarea 5.1 hecha; cambio archivado en `openspec/changes/archive/2026-11-22-como-pagarme` (spec nueva `openspec/specs/como-pagarme`). Feature cerrada.
