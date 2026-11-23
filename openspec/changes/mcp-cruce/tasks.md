@@ -2,8 +2,8 @@
 
 ## 1. Base y configuración local
 
-- [ ] 1.1 pgTAP `22_mcp_lectura_parches.sql` (rojo antes de la migración): un miembro recibe de `parche_summary` las personas, sus saldos y el mismo "Para saldar" que `parche_settlement_plan`; quien no es del parche, `anon` y una cuenta borrada reciben `null` o un error. Se verifica con `supabase test db --local`
-- [ ] 1.2 Migración `<fecha>_mcp_lectura_parches.sql` con `public.parche_summary(uuid)` y su permiso solo para `authenticated`. Se verifica con `supabase db reset --local` y `supabase test db --local` en verde (los 21 archivos de antes siguen igual)
+- [x] 1.1 pgTAP `22_mcp_lectura_parches.sql` (rojo antes de la migración): un miembro recibe de `parche_summary` las personas, sus saldos y el mismo "Para saldar" que `parche_settlement_plan`; quien no es del parche, `anon` y una cuenta borrada reciben `null` o un error. Se verifica con `supabase test db --local`
+- [x] 1.2 Migración `<fecha>_mcp_lectura_parches.sql` con `public.parche_summary(uuid)` y su permiso solo para `authenticated`. Se verifica con `supabase db reset --local` y `supabase test db --local` en verde (los 21 archivos de antes siguen igual)
 - [ ] 1.3 `supabase/config.toml`: `[auth.oauth_server] enabled = true` y `allow_dynamic_registration = true`, `site_url = "http://127.0.0.1:8088"` y su redirección, `[functions.mcp] verify_jwt = false` y `signing_keys_path` hacia una clave ES256 fuera de git (`supabase gen signing-key`; el archivo va en `.gitignore`). Se verifica con `curl http://127.0.0.1:54321/.well-known/oauth-authorization-server/auth/v1` (responde con el registro dinámico) y con un token nuevo que dice `alg: ES256`
 
 ## 2. Servidor MCP (Edge Function `mcp`)
