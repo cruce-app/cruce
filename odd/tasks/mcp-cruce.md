@@ -26,7 +26,7 @@ Las specs completas están en `openspec/changes/mcp-cruce/specs/` (`conexion-cla
 | T6 | S1–S5 | verificador independiente (Riesgo: ítem 2, auth y permisos) | hecho: B1 y B2 corregidos y rechequeados | `58035a2`, `d942736`, `d51b37b` |
 | T8 | S6, S7 | en línea (una unidad: migración, pgTAP y recorrido) | hecho (7.1) | `62907b3` |
 | T9 | S6 | en línea (unas 20 líneas) | hecho (7.2) | `c98c910` |
-| T10 | S6, S7 | verificador independiente (Riesgo: ítems 1, 2 y 3: `auth.users`, permisos y lo que la base acepta) | pendiente | — |
+| T10 | S6, S7 | verificador independiente (Riesgo: ítems 1, 2 y 3: `auth.users`, permisos y lo que la base acepta) | hecho: dos bloqueos corregidos y rechequeados | `c5ea5a2` |
 | T7 | S1–S5 | Joan, en la nube (testing y prod) | pendiente | — |
 
 Ruta: en línea, porque las unidades dependen unas de otras (la función necesita la base y la página de consentimiento para probarse). T6 es obligatorio: el cambio toca autenticación y permisos.
@@ -69,3 +69,4 @@ Ruta: en línea, porque las unidades dependen unas de otras (la función necesit
   - **Realtime:** un token con el acceso quitado seguía recibiendo movimientos nuevos por `postgres_changes` hasta vencer. Arreglo: política restrictiva `movements_oauth_session` (Realtime lee con RLS y los claims del token). pgTAP en rojo (2 en vez de 0) y después en verde.
   - **`/signup` con contraseña:** con un correo sin cuenta, alguien creaba la cuenta con su contraseña (y una sesión, porque `enable_confirmations` estaba apagado) y entraba después de que la dueña se registrara con el código. Arreglo: `forget_new_password` (la contraseña al crear la cuenta se cambia por una al azar) y `enable_confirmations = true`. pgTAP en rojo y después en verde; `scripts/mcp-local.sh` sección 10 en verde. En la nube, "Confirm email" se revisa en 6.1.
   - pgTAP 595 en 23 archivos.
+- **L9 (23 nov 2026), recheck de T10:** los dos bloqueos pasan. Realtime: el token con el acceso quitado ya no recibe movimientos (tampoco en un canal que ya estaba abierto); el token vivo y la sesión de la app sí. `/signup` con contraseña: sin sesión, la dueña entra con su código a la misma cuenta y la contraseña da 400. pgTAP 595 y `scripts/mcp-local.sh` en verde. Siguiente: push y PR con el permiso de Joan; en la nube, 6.1 incluye "Confirm email" y "Secure email change".
