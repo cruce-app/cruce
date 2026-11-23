@@ -8,7 +8,8 @@
 # Joan paga la cena de $60.000 a medias y Jesús el mercado de $100.000 a medias (Joan le debe $20.000 a Jesús); el
 # cruce de Joan con Pedro queda cerrado y Ana no tiene cruces con nadie. Después llama a la función `mcp` con JSON-RPC
 # por Streamable HTTP y revisa el 401 sin token, tools/list, ver_cruces, ver_movimientos, ver_parche, anotar_gasto,
-# el cruce cerrado, lo ajeno y la cuenta borrada.
+# el cruce cerrado, lo ajeno y la cuenta borrada. Al final conecta "Claude" con un token OAuth de verdad y revisa
+# que ese token solo lee y anota gastos, que no le pone contraseña a la cuenta y que quitar el acceso lo corta.
 #
 # Necesita `supabase start` desde la raíz del repo (con mailpit, el runtime de funciones y la clave ES256 de
 # supabase/signing_keys.json; ver supabase/README.md). Solo toca la base local.
@@ -248,6 +249,68 @@ estado="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$mcp" -H "Authorizatio
     -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}')"
 [[ "$estado" == "401" ]] && ok "cuenta borrada: 401" || falla "cuenta borrada respondió $estado"
+
+# 9. Claude con un token OAuth de verdad (registro automático, consentimiento de Joan y PKCE). Con ese token, la base
+# solo deja leer y anotar gastos; nadie le pone contraseña a la cuenta; quitar el acceso lo corta de inmediato.
+regreso="http://127.0.0.1:9/callback"
+cliente="$(curl -s -X POST "$api/auth/v1/oauth/clients/register" -H 'content-type: application/json' \
+    -d "{\"client_name\":\"Claude\",\"redirect_uris\":[\"$regreso\"],\"token_endpoint_auth_method\":\"none\",\
+\"grant_types\":[\"authorization_code\",\"refresh_token\"],\"response_types\":[\"code\"]}" | json 'd["client_id"]')"
+verificador="$(python3 -c 'import secrets;print(secrets.token_urlsafe(48))')"
+reto="$(python3 -c 'import base64,hashlib,sys;print(base64.urlsafe_b64encode(hashlib.sha256(sys.argv[1].encode()).digest()).rstrip(b"=").decode())' "$verificador")"
+consentimiento="$(curl -s -o /dev/null -w '%{redirect_url}' "$api/auth/v1/oauth/authorize?response_type=code\
+&client_id=$cliente&redirect_uri=$regreso&state=s&code_challenge=$reto&code_challenge_method=S256")"
+autorizacion="$(python3 -c 'import sys,urllib.parse as u;print(u.parse_qs(u.urlparse(sys.argv[1]).query)["authorization_id"][0])' "$consentimiento")"
+# Como la página de consentimiento: primero lee la solicitud con la sesión de Joan (eso la deja a su nombre).
+curl -s "$api/auth/v1/oauth/authorizations/$autorizacion" -H "apikey: $anon" -H "Authorization: Bearer $joan" >/dev/null
+aprobado="$(curl -s -X POST "$api/auth/v1/oauth/authorizations/$autorizacion/consent" -H "apikey: $anon" \
+    -H "Authorization: Bearer $joan" -H 'content-type: application/json' -d '{"action":"approve"}')"
+codigo_oauth="$(python3 -c 'import json,sys,urllib.parse as u;print(u.parse_qs(u.urlparse(json.loads(sys.argv[1])["redirect_url"]).query)["code"][0])' "$aprobado" 2>/dev/null)" || {
+    echo "Error: Joan no pudo aprobar el acceso de Claude: $aprobado" >&2
+    exit 1
+}
+claude="$(curl -s -X POST "$api/auth/v1/oauth/token" -H 'content-type: application/x-www-form-urlencoded' \
+    -d "grant_type=authorization_code&code=$codigo_oauth&client_id=$cliente&redirect_uri=$regreso&code_verifier=$verificador" |
+    json 'd["access_token"]')"
+# estado_de <token> <método> <url> [cuerpo]: el código HTTP de una petición.
+estado_de() {
+    curl -s -o /dev/null -w '%{http_code}' -X "$2" "$3" -H "apikey: $anon" -H "Authorization: Bearer $1" \
+        -H 'content-type: application/json' ${4:+-d "$4"}
+}
+
+saldo="$(mcp_rpc "$claude" tools/call '{"name":"ver_cruces","arguments":{}}' | texto_de)"
+grep -q "Jesús" <<<"$saldo" && ok "token OAuth: ver_cruces" || falla "token OAuth, ver_cruces: $saldo"
+anotado="$(mcp_rpc "$claude" tools/call "{\"name\":\"anotar_gasto\",\"arguments\":{\"cruce_id\":\"$con_jesus\",\
+\"monto\":8000,\"concepto\":\"Café\",\"quien_pago\":\"yo\"}}" | texto_de)"
+[[ "$anotado" != ERROR:* ]] && ok "token OAuth: anotar_gasto" || falla "token OAuth, anotar_gasto: $anotado"
+
+estado="$(estado_de "$claude" PATCH "$api/rest/v1/profiles?id=eq.$joan_id" '{"display_name":"Otro"}')"
+nombre="$(rest "$joan" GET "profiles?id=eq.$joan_id&select=display_name" | json 'd[0]["display_name"]')"
+[[ "$estado" == "403" && "$nombre" == "Joan" ]] && ok "token OAuth: no cambia el perfil (403)" ||
+    falla "token OAuth cambió el perfil: $estado, $nombre"
+estado="$(estado_de "$claude" POST "$api/rest/v1/movements" "{\"ledger_id\":\"$con_jesus\",\"kind\":\"settlement\",\
+\"payer_id\":\"$joan_id\",\"amount\":1000,\"concept\":\"Pago\",\"split_type\":\"full_other\",\"other_share_percent\":100}")"
+[[ "$estado" == "403" ]] && ok "token OAuth: no anota un pago (403)" || falla "token OAuth anotó un pago: $estado"
+estado="$(estado_de "$claude" POST "$api/rest/v1/rpc/delete_my_account" '{}')"
+[[ "$estado" == "403" ]] && ok "token OAuth: no borra la cuenta (403)" || falla "token OAuth, borrar la cuenta: $estado"
+
+clave="$(python3 -c 'import secrets;print("C-" + secrets.token_urlsafe(16))')"
+estado="$(estado_de "$claude" PUT "$api/auth/v1/user" "{\"password\":\"$clave\"}")"
+entra="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$api/auth/v1/token?grant_type=password" -H "apikey: $anon" \
+    -H 'content-type: application/json' -d "{\"email\":\"mcp-joan-$sufijo@example.com\",\"password\":\"$clave\"}")"
+[[ "$estado" != 2* && "$entra" == "400" ]] && ok "token OAuth: no le pone contraseña a la cuenta" ||
+    falla "token OAuth puso una contraseña: $estado, entrar con ella: $entra"
+
+estado="$(estado_de "$joan" DELETE "$api/auth/v1/user/oauth/grants?client_id=$cliente")"
+[[ "$estado" == 2* ]] || falla "Joan no pudo quitarle el acceso a Claude: $estado"
+estado="$(estado_de "$claude" GET "$api/rest/v1/profiles?select=id")"
+[[ "$estado" == "401" ]] && ok "acceso quitado: la base responde 401 de inmediato" || falla "acceso quitado, la base respondió $estado"
+estado="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$mcp" -H "Authorization: Bearer $claude" \
+    -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}')"
+[[ "$estado" == "401" ]] && ok "acceso quitado: el MCP responde 401" || falla "acceso quitado, el MCP respondió $estado"
+estado="$(estado_de "$joan" GET "$api/rest/v1/profiles?select=id")"
+[[ "$estado" == "200" ]] && ok "la sesión de la app sigue sirviendo" || falla "la sesión de la app respondió $estado"
 
 if ((fallas > 0)); then
     echo "Fallaron $fallas revisiones." >&2

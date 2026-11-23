@@ -44,6 +44,15 @@ parches y anotar gastos en tus cruces.", con "Permitir" y "No permitir".
 - **WHEN** alguien abre la página con un `authorization_id` vencido o inventado
 - **THEN** la página dice "Esta solicitud ya no sirve. Vuelve a conectar Cruce desde Claude." y no aprueba nada
 
+### Requirement: Sitio de regreso en el consentimiento
+Cualquier aplicación se puede registrar sola con el nombre que quiera. Por eso, junto a la pregunta, la página de
+consentimiento SHALL decir "Al permitir, vuelves a <sitio>.", con el sitio de la dirección de regreso que registró la
+aplicación, para que se note cuando una aplicación dice ser Claude y no lo es.
+
+#### Scenario: Una aplicación que dice ser Claude
+- **WHEN** una aplicación que se registró como "Claude" pide acceso y vuelve a `https://evil.example/cb`
+- **THEN** la página dice "Claude quiere ver tus cruces y parches y anotar gastos en tus cruces." y "Al permitir, vuelves a evil.example.", así Joan ve que no es Claude
+
 ### Requirement: Aprobar o rechazar sin secretos
 "Permitir" SHALL devolver al navegador a la aplicación con el código de autorización; "No permitir" SHALL devolverlo
 sin acceso. La página MUST NOT usar ni recibir la clave `service_role`, y MUST NOT guardar tokens fuera del navegador.
@@ -55,12 +64,12 @@ sin acceso. La página MUST NOT usar ni recibir la clave `service_role`, y MUST 
 ### Requirement: Quitar el acceso
 El backend SHALL servir una página "Tus conexiones" (`/oauth/conexiones`) que, con la sesión iniciada, liste las
 aplicaciones con acceso a la cuenta y deje quitarle el acceso a cada una con "Quitar acceso". Después de quitarlo, esa
-aplicación MUST NOT poder leer ni anotar nada con los tokens que ya tenía, a más tardar cuando venza su token de acceso
-(una hora), y MUST volver a pedir consentimiento para conectarse otra vez.
+aplicación MUST NOT poder leer ni anotar nada con los tokens que ya tenía, ni por el servidor MCP ni directo contra la
+base, y MUST volver a pedir consentimiento para conectarse otra vez.
 
 #### Scenario: Quitarle el acceso a Claude
 - **WHEN** Jesús abre "Tus conexiones" y toca "Quitar acceso" en Claude
-- **THEN** Claude deja de aparecer en la lista y, a más tardar en una hora, deja de poder leer y anotar en Cruce
+- **THEN** Claude deja de aparecer en la lista y deja de poder leer y anotar en Cruce de inmediato, aunque su token no haya vencido
 
 ### Requirement: Claude actúa como quien lo conectó
 Todo lo que Claude lee o anota por el servidor MCP SHALL hacerse con la identidad de la persona que aprobó el acceso,
@@ -74,3 +83,26 @@ cuenta borrada MUST NOT poder leer ni anotar, aunque su token siga vigente.
 #### Scenario: Cuenta borrada
 - **WHEN** Jesús borra su cuenta con Claude conectado
 - **THEN** las herramientas de Cruce ya no le devuelven datos ni le dejan anotar
+
+### Requirement: Claude solo puede lo que dan las herramientas
+Con un token emitido a una aplicación conectada (OAuth), la base SHALL aceptar solo lecturas, anotar un gasto en
+`movements` y las funciones de lectura que usan las herramientas. Todo lo demás MUST rechazarse sin cambiar nada:
+editar el perfil, editar o borrar movimientos, anotar un pago, borrar la cuenta, crear o vincular cruces y escribir en
+parches. Las peticiones de la app de iOS, con la sesión normal, no cambian.
+
+#### Scenario: Una aplicación intenta cambiar el perfil
+- **WHEN** una aplicación conectada usa su token para cambiar el nombre del perfil de Joan directo contra la base
+- **THEN** la base lo rechaza y el nombre no cambia
+
+#### Scenario: Una aplicación intenta anotar un pago
+- **WHEN** una aplicación conectada usa su token para guardar un movimiento de pago (`settlement`) en un cruce
+- **THEN** la base lo rechaza y no se guarda nada
+
+### Requirement: Nadie cambia la contraseña
+Cruce no usa contraseñas: se entra con un código por correo. Ponerle o cambiarle la contraseña a una cuenta MUST
+rechazarse, también con el token de una aplicación conectada, para que ese token no se pueda convertir en una forma
+de entrar con correo y contraseña. Entrar con el código por correo, crear una cuenta y borrarla no cambian.
+
+#### Scenario: Una aplicación intenta ponerle contraseña a la cuenta
+- **WHEN** una aplicación conectada usa su token para ponerle una contraseña a la cuenta de Joan
+- **THEN** Supabase Auth lo rechaza y nadie puede entrar a la cuenta de Joan con correo y esa contraseña
