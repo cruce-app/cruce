@@ -34,6 +34,7 @@ jobs:
               - '.github/workflows/ci.yml'
             supabase:
               - 'supabase/**'
+              - 'scripts/llave-local.sh'
               - '.github/workflows/ci.yml'
             core:
               - 'ios/Packages/CruceCore/**'
