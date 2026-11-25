@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es-CO" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cruce · Cuentas claras entre amigos</title>
+  <meta name="description" content="Cruce cruza lo que tú le debes a tu amigo con lo que él te debe y te deja una sola cifra. Parches para los planes en grupo, tickets para quien no tiene la app y cero incomodidad al cobrar.">
+  <meta name="theme-color" content="#FBF6EA">
+  <meta property="og:title" content="Cruce · Cuentas claras entre amigos">
+  <meta property="og:description" content="Lo que se deben, en una sola cifra. Muy pronto en iPhone.">
+  <meta property="og:image" content="assets/img/icon-256.png">
+  <link rel="icon" type="image/png" href="assets/img/icon-256.png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preload" href="assets/fonts/Archivo-Black.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Archivo-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.replace("no-js", "js");</script>
+</head>
+<body>
+
+<!-- Sprites -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="arrows-both" viewBox="0 0 24 24"><path d="M4 4 20 20M20 13v7h-7M4 20 20 4M13 4h7v7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="arrow-down" viewBox="0 0 24 24"><path d="M4 4 20 20M20 13v7h-7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="arrow-up" viewBox="0 0 24 24"><path d="M4 20 20 4M13 4h7v7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="tile-yellow" viewBox="0 0 101 101"><rect x="5" y="5" width="96" height="96" rx="24" fill="#111"/><rect x="1.5" y="1.5" width="93" height="93" rx="22.5" fill="#FFD12E" stroke="#111" stroke-width="3"/><use href="#arrows-both" x="19.2" y="19.2" width="57.6" height="57.6" color="#111"/></symbol>
+    <symbol id="tile-violet" viewBox="0 0 101 101"><rect x="5" y="5" width="96" height="96" rx="24" fill="#111"/><rect x="1.5" y="1.5" width="93" height="93" rx="22.5" fill="#8B6CFF" stroke="#111" stroke-width="3"/><use href="#arrow-down" x="19.2" y="19.2" width="57.6" height="57.6" color="#111"/></symbol>
+    <symbol id="tile-lime" viewBox="0 0 101 101"><rect x="5" y="5" width="96" height="96" rx="24" fill="#111"/><rect x="1.5" y="1.5" width="93" height="93" rx="22.5" fill="#B5E33B" stroke="#111" stroke-width="3"/><use href="#arrow-up" x="19.2" y="19.2" width="57.6" height="57.6" color="#111"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14m-4-4 4 4-4 4M20 16H6m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2.4"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v8m-3-8v5a3 3 0 0 0 6 0V3M7 11v10M17 21V3c-2.5 1.5-4 4-4 8h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.5l2.2 11h10.6L20.5 7H7M9 20h.01M17 20h.01" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 11h16M8 17v3M16 17v3M8 14h.01M16 14h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Zm4 0V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.5-2.8M19 13a10 10 0 0 0-2.4-1.7M2 9.5a15 15 0 0 1 4.2-2.7M22 9.5A15 15 0 0 0 11 6M12 20h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6V3Zm8 0v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="16" r="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M14 4h6v6h-6zM4 14h6v6H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12m-4-8 4-4 4 4M6 12v7h12v-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8ZM14.2 5.8c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></symbol>
+  </defs>
+</svg>
+
+<!-- Intro "Choque": the app's launch animation -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__door intro__door--l"></div>
+  <div class="intro__door intro__door--r"></div>
+  <div class="intro__stage">
+    <div class="intro__ring"></div>
+    <span class="logo-tile intro__half intro__half--a"><svg><use href="#tile-violet"/></svg></span>
+    <span class="logo-tile intro__half intro__half--b"><svg><use href="#tile-lime"/></svg></span>
+    <span class="logo-tile intro__logo"><svg><use href="#tile-yellow"/></svg></span>
+  </div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav__row">
+    <a class="brand" href="#top" aria-label="Cruce, inicio">
+      <span class="logo-tile"><svg><use href="#tile-yellow"/></svg></span>
+      Cruce
+    </a>
+    <nav class="nav__links" aria-label="Secciones">
+      <a href="#idea">La idea</a>
+      <a href="#pruebalo">Pruébalo</a>
+      <a href="#parches">Parches</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn btn--sm" href="#pruebalo">Pruébalo</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <span class="label label--pill" data-reveal>Cuentas claras entre amigos</span>
+        <h1 class="display" data-reveal style="--d:.08s">Lo que se deben, en <span class="mark">una sola</span> cifra.</h1>
+        <p class="lead" data-reveal style="--d:.16s">Tú anotas lo que pagaste, tu amigo anota lo que pagó él. Cruce cruza las dos cuentas y les deja un solo saldo. Sin listas en notas, sin "¿yo te debía o tú me debías?" y sin la incomodidad de cobrar.</p>
+        <div class="hero__actions" data-reveal style="--d:.24s">
+          <a class="btn" href="#pruebalo" id="hero-try">
+            <svg><use href="#i-plus"/></svg> Anota un gasto de prueba
+          </a>
+          <span class="store-badge">
+            <svg><use href="#i-apple"/></svg>
+            <span>Muy pronto en iPhone<small>Hoy en beta privada</small></span>
+          </span>
+        </div>
+        <div class="hero__proof" data-reveal style="--d:.32s">
+          <span class="avatars" aria-hidden="true">
+            <span class="avatar avatar--sm avatar--jo">Jo</span>
+            <span class="avatar avatar--sm avatar--je">Je</span>
+            <span class="avatar avatar--sm avatar--an">An</span>
+            <span class="avatar avatar--sm avatar--ca">Ca</span>
+          </span>
+          Hecha en Colombia, en pesos colombianos.
+        </div>
+      </div>
+
+      <div class="hero__visual" data-parallax>
+        <div class="hero__blob"></div>
+        <div class="phone" data-depth="0.5">
+          <img src="assets/img/screens/04-inicio.webp" alt="Pantalla de inicio de Cruce: Jesús te debe $20.000, con los últimos movimientos." width="620" height="1348" fetchpriority="high">
+        </div>
+        <div class="sticker sticker--a" data-depth="1.4"><div class="sticker--move float">
+          <span class="cat"><svg><use href="#i-food"/></svg></span>
+          <span><b>Almuerzo corrientazo</b>Pagaste $36.000 · 50/50</span>
+          <span class="amt">+$18.000<small>a tu favor</small></span>
+        </div></div>
+        <div class="sticker sticker--b" data-depth="1.1"><div class="sticker--move float float--2">
+          <span class="cat cat--green"><svg><use href="#i-cart"/></svg></span>
+          <span><b>Mercado Éxito</b>Jesús pagó $100.000</span>
+          <span class="amt">−$50.000<small>a favor de Jesús</small></span>
+        </div></div>
+        <div class="sticker sticker--badge" data-depth="1.8"><span class="float float--3" style="display:block">¡A paz y salvo!</span></div>
+        <img class="sticker sticker--char" data-depth="2" src="assets/img/ill/il-01-bienvenida.webp" alt="" width="553" height="600">
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" data-marquee>
+      <span class="marquee__item">Cuentas claras <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">Una sola cifra <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">Sin cobrar incómodo <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">Parches para el paseo <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">A paz y salvo <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">Amistades largas <svg><use href="#arrows-both"/></svg></span>
+    </div>
+  </div>
+  <div class="marquee marquee--yellow" aria-hidden="true">
+    <div class="marquee__track" data-marquee>
+      <span class="marquee__item">Anota <svg><use href="#arrow-down"/></svg></span>
+      <span class="marquee__item">Cruza <svg><use href="#arrows-both"/></svg></span>
+      <span class="marquee__item">Salda <svg><use href="#i-check"/></svg></span>
+      <span class="marquee__item">Comparte el ticket <svg><use href="#i-share"/></svg></span>
+    </div>
+  </div>
+
+  <!-- Problem -->
+  <section class="section" id="problema" aria-labelledby="problema-t">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="label">El problema</span>
+        <h2 class="h2" id="problema-t">La plata entre amigos no se pelea por el monto. Se pelea por <span class="mark mark--pink">lo incómodo de cobrar</span>.</h2>
+        <p class="lead">Mover la plata ya es fácil. Saber cuánto se deben después de diez gastos, no.</p>
+      </div>
+      <div class="stats">
+        <article class="neo stat stat--pink" data-reveal="pop">
+          <div class="stat__num"><span data-count="46">0</span><small> %</small></div>
+          <p>de quienes le prestaron plata a un amigo o familiar tuvo una mala experiencia.</p>
+          <cite>Encuesta de Bankrate</cite>
+        </article>
+        <article class="neo stat stat--yellow" data-reveal="pop" style="--d:.08s">
+          <div class="stat__num"><span data-count="76">0</span><small> %</small></div>
+          <p>de la generación Z que adelantó plata en un gasto compartido nunca la recuperó del todo.</p>
+          <cite>Encuesta de Zelle, vía <a href="https://www.xataka.com/empresas-y-economia/generacion-z-esta-desarrollando-nuevo-tipo-deuda-dice-mucho-que-no-sabemos-prestar-dinero-a-amigo" target="_blank" rel="noopener">Xataka</a></cite>
+        </article>
+        <article class="neo stat stat--lime" data-reveal="pop" style="--d:.16s">
+          <div class="stat__num"><span data-count="28.8" data-decimals="1">0</span><small> M</small></div>
+          <p>de cuentas tenía Nequi en junio de 2026. La plata ya se mueve con un toque.</p>
+          <cite>Grupo Cibest, vía <a href="https://www.larepublica.co/finanzas/entrevista-a-andres-vasquez-ceo-de-nequi-4211528" target="_blank" rel="noopener">La República</a></cite>
+        </article>
+        <article class="neo stat stat--peach" data-reveal="pop" style="--d:.24s">
+          <div class="stat__num"><span data-count="54">0</span><small> M</small></div>
+          <p>de usuarios únicos en billeteras digitales en Colombia. Pagan fácil, pero ninguna lleva la cuenta entre dos.</p>
+          <cite>Colombia Fintech 2023, vía <a href="https://www.larepublica.co/finanzas/billeteras-digitales-cuentan-con-mas-de-54-millones-de-usuarios-unicos-en-colombia-4094840" target="_blank" rel="noopener">La República</a></cite>
+        </article>
+      </div>
+      <p class="stats-note" data-reveal>Las billeteras resuelven <b>cómo pagar</b>. Cruce resuelve <b>cuánto se deben</b>. Ese es el hueco que llena.</p>
+    </div>
+  </section>
+
+  <!-- Idea -->
+  <section class="section section--white" id="idea" aria-labelledby="idea-t">
+    <div class="wrap idea">
+      <div class="idea__copy" data-reveal>
+        <span class="label">La idea</span>
+        <h2 class="h2" id="idea-t">Dos listas que no se hablan. <span class="mark">Un cruce</span> que las arregla.</h2>
+        <p class="lead">Cada uno lleva su cuenta por su lado y ninguna cuadra. Cruce junta todo lo que se deben en las dos direcciones, lo compensa solo y les muestra una sola cifra: quién le debe a quién y cuánto.</p>
+        <div class="idea__controls">
+          <button class="btn" type="button" id="cross-btn"><svg><use href="#arrows-both"/></svg> Cruzar las cuentas</button>
+          <button class="btn btn--white" type="button" id="cross-reset" hidden>Otra vez</button>
+        </div>
+      </div>
+      <div class="idea__stage" id="idea-stage" data-reveal="pop">
+        <div class="note note--a">
+          <div class="note__who"><span class="avatar avatar--sm avatar--jo">Jo</span> La cuenta de Joan</div>
+          <div class="note__line">Jesús me debe</div>
+          <span class="note__amt">$30.000</span>
+          <div class="note__line" style="font-size:14px;color:var(--text-2);margin-top:8px">del Uber y la pola del viernes</div>
+        </div>
+        <div class="note note--b">
+          <div class="note__who"><span class="avatar avatar--sm avatar--je">Je</span> La cuenta de Jesús</div>
+          <div class="note__line">Joan me debe</div>
+          <span class="note__amt">$60.000</span>
+          <div class="note__line" style="font-size:14px;color:var(--text-2);margin-top:8px">del mercado y el domicilio</div>
+        </div>
+        <span class="logo-tile clash" style="--size:96px"><svg><use href="#tile-yellow"/></svg></span>
+        <div class="result" aria-live="polite">
+          <span class="label">Saldo neto</span>
+          <div class="neo result__body">
+            <div class="result__phrase">Le debes a Jesús</div>
+            <div class="result__amt">$30.000</div>
+            <div class="result__dir">Tú → Jesús · una cifra, cero discusiones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive demo -->
+  <section class="section" id="pruebalo" aria-labelledby="pruebalo-t">
+    <div class="wrap">
+      <div class="section-head section-head--center" data-reveal>
+        <span class="label label--pill">Pruébalo aquí</span>
+        <h2 class="h2" id="pruebalo-t">Anota, mira cómo se cruza y <span class="mark mark--lime">salda</span>.</h2>
+        <p class="lead">Es el mismo cruce de la app, con sus sonidos. Toca un gasto y mira cómo cambia el saldo entre Joan y Jesús.</p>
+      </div>
+      <div class="demo">
+        <div class="neo demo__panel" data-reveal>
+          <div class="demo__people">
+            <span class="avatar avatar--jo">Jo</span><span class="vs">tú</span>
+            <svg width="28" height="28" aria-hidden="true"><use href="#i-swap"/></svg>
+            <span class="avatar avatar--je">Je</span><span class="vs">Jesús</span>
+          </div>
+          <h3 class="demo__title">Toca un gasto para anotarlo</h3>
+          <div class="presets" id="presets"></div>
+        </div>
+
+        <div data-reveal style="--d:.1s">
+          <div class="balance" id="balance" data-state="settled">
+            <span class="label">Saldo neto</span>
+            <div class="neo balance__card">
+              <img class="balance__ill" id="balance-ill" src="assets/img/ill/il-07-paz-y-salvo.webp" alt="" width="110">
+              <div class="balance__phrase" id="balance-phrase">Están a paz y salvo</div>
+              <div class="balance__amt" id="balance-amt" aria-live="polite">$0</div>
+              <div class="balance__dir" id="balance-dir">Sin movimientos todavía</div>
+            </div>
+          </div>
+          <div class="demo__actions">
+            <button class="btn" type="button" id="settle-btn" disabled><svg><use href="#i-check"/></svg> Saldar</button>
+            <button class="btn btn--white" type="button" id="reset-btn">Empezar de nuevo</button>
+          </div>
+          <div class="moves">
+            <div class="moves__head">Últimos movimientos</div>
+            <div id="moves-list"><div class="moves__empty">Aquí aparecen los gastos que anotes.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Parches -->
+  <section class="section section--white" id="parches" aria-labelledby="parches-t">
+    <div class="wrap">
+      <div class="parches">
+        <div class="parches__copy" data-reveal>
+          <span class="label" style="background:var(--violet)">Parches</span>
+          <h2 class="h2" id="parches-t">Para el paseo, la finca o el cumpleaños: <span class="mark">un parche</span>.</h2>
+          <p class="lead">Un parche es un grupo con inicio y fin. Cualquiera con la app anota gastos y pagos, y al cerrarlo Cruce propone el mínimo de transferencias. Lo que quede entre dos puede pasar a su cruce de siempre.</p>
+          <div class="splits" aria-label="Formas de repartir">
+            <span class="chip">Igual para todos</span>
+            <span class="chip">Por consumo</span>
+            <span class="chip">Por partes</span>
+            <span class="chip">Por porcentaje</span>
+            <span class="chip" style="background:var(--peach)">+ propina proporcional</span>
+          </div>
+        </div>
+        <div class="neo graph" id="graph" data-reveal="pop">
+          <div class="graph__top">
+            <div class="graph__title">Parche Santa Marta</div>
+            <span class="graph__count" id="graph-count"><span id="graph-n">6</span> deudas</span>
+          </div>
+          <svg id="graph-svg" viewBox="0 0 400 300" role="img" aria-labelledby="graph-desc"><desc id="graph-desc">Cuatro personas con deudas cruzadas que se simplifican al cerrar el parche.</desc></svg>
+          <div class="graph__expenses" aria-label="Gastos del parche">
+            <div><span>Hospedaje · <b>Jesús</b></span><b>$300.000</b></div>
+            <div><span>Lancha · <b>Ana</b></span><b>$120.000</b></div>
+            <div><span>Almuerzo · <b>Joan</b></span><b>$80.000</b></div>
+            <div><span>Mercado · <b>Joan</b></span><b>$60.000</b></div>
+          </div>
+          <button class="btn" type="button" id="close-parche"><svg><use href="#i-check"/></svg> Cerrar el parche</button>
+        </div>
+      </div>
+
+      <div class="ticket-row">
+        <div class="chat" data-reveal="pop" aria-label="Ticket enviado por WhatsApp">
+          <div class="bubble bubble--me">Carlos, te mando tu ticket del paseo 🙌<small>8:42 p. m.</small></div>
+          <div class="bubble bubble--me bubble--img"><img src="assets/img/screens/15-ticket-personal.webp" alt="Ticket de Carlos: debe $172.000, con el detalle de cómo se calcula y a quién pagarle." loading="lazy" width="620" height="1348"></div>
+          <div class="bubble bubble--them">Uy, clarísimo. Ya le paso a Jesús por Nequi<small>8:44 p. m.</small></div>
+        </div>
+        <div class="ticket-row__copy" data-reveal>
+          <span class="label" style="background:var(--peach)">Sin la app</span>
+          <h2 class="h2">¿El tío del paseo no tiene la app? <span class="mark mark--violet">Le llega su ticket.</span></h2>
+          <p class="lead">Nadie tiene que instalar nada para enterarse de cuánto debe. Cruce arma un ticket con su cuenta, cómo se calcula y a quién pagarle, listo para mandarlo por WhatsApp. Cuando paga, quien recibe lo confirma.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento -->
+  <section class="section" id="funciones" aria-labelledby="funciones-t">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="label" style="background:var(--yellow)">Lo que hace</span>
+        <h2 class="h2" id="funciones-t">Pequeños detalles que le quitan <span class="mark">el peso</span> a hablar de plata.</h2>
+      </div>
+      <div class="bento">
+        <article class="neo tile tile--w4 tile--yellow tile--wide-sm" data-reveal="pop">
+          <span class="tile__icon"><svg><use href="#arrows-both"/></svg></span>
+          <h3 class="h3">Un saldo neto por cada amigo</h3>
+          <p>Cada amigo tiene su propio cruce, solo entre ustedes dos. Gastos 50/50, por porcentaje o todo del otro, pagos parciales y un historial que no se pierde.</p>
+          <img class="tile__ill" src="assets/img/ill/il-04-te-deben-verde.webp" alt="" loading="lazy" width="150">
+        </article>
+        <article class="neo tile tile--w2" data-reveal="pop" style="--d:.06s">
+          <span class="tile__icon"><svg><use href="#i-wifi-off"/></svg></span>
+          <h3 class="h3">Anota sin señal</h3>
+          <p>En la finca sin datos también funciona. Se guarda y se sube cuando vuelva la señal.</p>
+          <button class="offline-pill" type="button" id="offline-pill"><i></i><span>Sin conexión · 1 pendiente</span></button>
+        </article>
+        <article class="neo tile tile--w2 tile--peach" data-reveal="pop">
+          <span class="tile__icon"><svg><use href="#i-check"/></svg></span>
+          <h3 class="h3">Quien recibe, confirma</h3>
+          <p>Un pago cuenta cuando la otra persona dice que sí le llegó.</p>
+          <div class="confirm" id="confirm"><span id="confirm-text">Carlos te pagó $50.000</span><button class="btn btn--sm" type="button" id="confirm-btn">Confirmar</button></div>
+        </article>
+        <article class="neo tile tile--w4 tile--wide-sm" data-reveal="pop" style="--d:.06s">
+          <span class="tile__icon"><svg><use href="#i-share"/></svg></span>
+          <h3 class="h3">Cómo te pagan, a la mano</h3>
+          <p>Guarda tu Nequi o tu llave Bre-B en el perfil. Al saldar, tu amigo ve a dónde pagarte y lo copia con un toque.</p>
+          <div class="pay">
+            <span class="avatar avatar--je">Je</span>
+            <span><small>Págale a Jesús por Nequi</small><b>300 123 4567</b></span>
+            <button class="btn btn--sm btn--white" type="button" id="copy-btn"><svg><use href="#i-copy"/></svg> Copiar</button>
+          </div>
+        </article>
+        <article class="neo tile tile--w2 tile--lime" data-reveal="pop">
+          <span class="tile__icon"><svg><use href="#i-mail"/></svg></span>
+          <h3 class="h3">Entras con tu correo</h3>
+          <p>Te llega un código y listo. Sin contraseñas que olvidar.</p>
+        </article>
+        <article class="neo tile tile--w2" data-reveal="pop" style="--d:.06s">
+          <span class="tile__icon"><svg><use href="#i-palette"/></svg></span>
+          <h3 class="h3">Cada quien su color</h3>
+          <p>Avatares de colores para saber de un vistazo quién pagó qué.</p>
+        </article>
+        <article class="neo tile tile--w2 tile--violet" data-reveal="pop" style="--d:.12s">
+          <span class="tile__icon"><svg><use href="#i-file"/></svg></span>
+          <h3 class="h3">Tu historial es tuyo</h3>
+          <p>Exporta los movimientos de un cruce en CSV cuando quieras.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="section section--violet" id="pantallas" aria-labelledby="pantallas-t">
+    <div class="wrap">
+      <div class="section-head section-head--center" data-reveal>
+        <span class="label label--pill">La app</span>
+        <h2 class="h2" id="pantallas-t">Neobrutalista, juguetona y clarísima.</h2>
+        <p class="lead" style="color:var(--ink)">Bordes de tinta, sombras sólidas y personajes propios. Un tema serio contado con humor, sin perder una sola cifra.</p>
+      </div>
+    </div>
+    <div class="gallery">
+      <div class="gallery__track" id="gallery" tabindex="0" aria-label="Pantallas de la app, desliza para ver más"></div>
+      <div class="gallery__nav">
+        <button class="btn btn--white" type="button" data-gallery="-1" aria-label="Anterior"><svg><use href="#i-chev-l"/></svg></button>
+        <button class="btn btn--white" type="button" data-gallery="1" aria-label="Siguiente"><svg><use href="#i-chev-r"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Numbers -->
+  <section class="section section--ink" id="numeros" aria-labelledby="numeros-t">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="label" style="background:var(--yellow);color:var(--ink)">Cruce en números</span>
+        <h2 class="h2" id="numeros-t">Hecha con cuidado, <span style="color:var(--yellow)">hasta el último peso</span>.</h2>
+      </div>
+      <div class="numbers" data-reveal>
+        <div class="number"><span class="number__n" data-count="1">0</span><b>sola cifra</b><p>Todo lo que se deben, cruzado en un saldo neto.</p></div>
+        <div class="number"><span class="number__n" data-count="4">0</span><b>formas de repartir</b><p>Igual, por consumo, por partes o por porcentaje.</p></div>
+        <div class="number">
+          <span class="number__n" data-count="6">0</span><b>sonidos</b>
+          <p>Solo suenan los momentos que importan. Escúchalos:</p>
+          <div class="sound-row" id="sound-row"></div>
+        </div>
+        <div class="number"><span class="number__n" data-count="25">0</span><b>ilustraciones propias</b><p>Un personaje para cada estado: te deben, debes, sin señal, paz y salvo.</p></div>
+        <div class="number"><span class="number__n" data-count="595">0</span><b>pruebas automáticas</b><p>Revisan la base de datos para que las cuentas siempre cuadren.</p></div>
+        <div class="number"><span class="number__n">$0</span><b>de comisión</b><p>Cruce no toca tu plata. Ustedes se pagan por Nequi, Bre-B o en efectivo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="preguntas" aria-labelledby="preguntas-t">
+    <div class="wrap">
+      <div class="section-head section-head--center" data-reveal>
+        <span class="label label--pill">Preguntas</span>
+        <h2 class="h2" id="preguntas-t">Lo que todos preguntan.</h2>
+      </div>
+      <div class="faq">
+        <details class="neo" data-reveal>
+          <summary>¿Cruce mueve mi plata?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>No. Cruce solo lleva la cuenta. Ustedes se pagan como siempre, por Nequi, llave Bre-B, transferencia o en efectivo, y quien recibe confirma el pago.</p></div>
+        </details>
+        <details class="neo" data-reveal>
+          <summary>¿Los dos necesitamos la app?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>Para un cruce, sí: es entre dos personas con cuenta, y se vinculan con un código. En un parche no hace falta: quien no tenga la app recibe su ticket como imagen.</p></div>
+        </details>
+        <details class="neo" data-reveal>
+          <summary>¿Qué es un parche?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>Un grupo con inicio y fin para un plan: un viaje, una finca, un cumpleaños. Cualquiera con la app anota gastos y pagos. Al cerrarlo, Cruce propone el mínimo de transferencias y te pregunta si quieres pasar lo que quede entre dos a su cruce. Un parche cerrado no se reabre.</p></div>
+        </details>
+        <details class="neo" data-reveal>
+          <summary>¿Funciona sin señal?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>Sí. Anotas sin conexión y se sube cuando vuelva la señal.</p></div>
+        </details>
+        <details class="neo" data-reveal>
+          <summary>¿Cómo entro?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>Con tu correo: te llega un código de un solo uso y entras. Sin contraseñas.</p></div>
+        </details>
+        <details class="neo" data-reveal>
+          <summary>¿Está para Android?<span class="tog"><svg><use href="#i-plus"/></svg></span></summary>
+          <div class="ans"><p>Por ahora Cruce es solo para iPhone y está en beta privada.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final" aria-labelledby="final-t">
+    <span class="final__shape final__shape--1" data-depth="0.6"></span>
+    <span class="final__shape final__shape--2" data-depth="1.2"></span>
+    <span class="final__shape final__shape--3" data-depth="1.6"></span>
+    <span class="final__shape final__shape--4" data-depth="2"></span>
+    <div class="wrap final__inner">
+      <img class="final__ill" src="assets/img/ill/il-07-paz-y-salvo.webp" alt="" loading="lazy" width="300" data-reveal="pop">
+      <h2 class="display" id="final-t" data-reveal style="--d:.16s">¡A paz y salvo!</h2>
+      <p class="lead" data-reveal style="--d:.24s">La mejor parte de una cuenta entre amigos es cuando queda en cero. Cruce llega muy pronto a iPhone.</p>
+      <div class="hero__actions" data-reveal style="--d:.32s">
+        <button class="btn btn--dark" type="button" id="final-btn"><svg><use href="#i-check"/></svg> Celebrar el $0</button>
+        <span class="store-badge"><svg><use href="#i-apple"/></svg><span>Muy pronto en el App Store<small>Hoy en beta privada</small></span></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__row">
+    <a class="brand" href="#top"><span class="logo-tile" style="--size:32px"><svg><use href="#tile-yellow"/></svg></span>Cruce</a>
+    <span>Cuentas claras entre amigos · Hecha en Colombia</span>
+    <span>Tipografía <a href="assets/fonts/OFL-Archivo.txt">Archivo (OFL)</a></span>
+  </div>
+</footer>
+
+<button class="sound-toggle" type="button" id="sound-toggle" aria-pressed="true">
+  <span class="sw" aria-hidden="true"></span>
+  <span>Sonidos</span>
+  <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+</button>
+
+<div class="celebrate" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrate-t">
+  <div class="celebrate__card">
+    <img src="assets/img/ill/il-07-paz-y-salvo.webp" alt="" width="210">
+    <h2 class="h2" id="celebrate-t">¡A paz y salvo!</h2>
+    <p id="celebrate-text">El saldo quedó en $0.</p>
+    <button class="btn btn--dark" type="button" id="celebrate-close" style="width:100%">Volver</button>
+  </div>
+</div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
