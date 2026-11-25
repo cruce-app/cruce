@@ -798,6 +798,9 @@ button { font: inherit; color: inherit; }
 .footer__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
 .footer .brand { color: var(--cream); font-size: 22px; }
 .footer a { color: var(--cream); }
+.footer__legal { display: grid; gap: 10px; margin-top: 28px; padding-top: 24px; border-top: 2px solid #3a3a3a; font-size: 13px; line-height: 1.55; max-width: 80ch; }
+.footer__legal p { margin: 0; }
+.footer__legal b { color: var(--cream); font-weight: 800; }
 
 /* ---------- Sound toggle ---------- */
 .sound-toggle {

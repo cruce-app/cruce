@@ -44,7 +44,7 @@
     <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12m-4-8 4-4 4 4M6 12v7h12v-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8ZM14.2 5.8c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10.5 18.5h3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
 
@@ -90,7 +90,7 @@
             <svg><use href="#i-plus"/></svg> Anota un gasto de prueba
           </a>
           <span class="store-badge">
-            <svg><use href="#i-apple"/></svg>
+            <svg><use href="#i-phone"/></svg>
             <span>Muy pronto en iPhone<small>Hoy en beta privada</small></span>
           </span>
         </div>
@@ -449,17 +449,24 @@
       <p class="lead" data-reveal style="--d:.24s">La mejor parte de una cuenta entre amigos es cuando queda en cero. Cruce llega muy pronto a iPhone.</p>
       <div class="hero__actions" data-reveal style="--d:.32s">
         <button class="btn btn--dark" type="button" id="final-btn"><svg><use href="#i-check"/></svg> Celebrar el $0</button>
-        <span class="store-badge"><svg><use href="#i-apple"/></svg><span>Muy pronto en el App Store<small>Hoy en beta privada</small></span></span>
+        <span class="store-badge"><svg><use href="#i-phone"/></svg><span>Muy pronto en el App Store<small>Hoy en beta privada</small></span></span>
       </div>
     </div>
   </section>
 </main>
 
 <footer class="footer">
-  <div class="wrap footer__row">
-    <a class="brand" href="#top"><span class="logo-tile" style="--size:32px"><svg><use href="#tile-yellow"/></svg></span>Cruce</a>
-    <span>Cuentas claras entre amigos · Hecha en Colombia</span>
-    <span>Tipografía <a href="assets/fonts/OFL-Archivo.txt">Archivo (OFL)</a></span>
+  <div class="wrap">
+    <div class="footer__row">
+      <a class="brand" href="#top"><span class="logo-tile" style="--size:32px"><svg><use href="#tile-yellow"/></svg></span>Cruce</a>
+      <span>Cuentas claras entre amigos · Hecha en Colombia</span>
+      <span>Tipografía <a href="assets/fonts/OFL-Archivo.txt">Archivo (OFL)</a></span>
+    </div>
+    <div class="footer__legal">
+      <p><b>Cruce no es una entidad financiera.</b> No mueve, no guarda ni presta dinero, y no está vigilada por la Superintendencia Financiera de Colombia. Solo lleva la cuenta de lo que se deben; los pagos se hacen por fuera de la app.</p>
+      <p>Nequi, Bre-B, WhatsApp, iPhone, App Store, Éxito, Rappi y Uber son marcas de sus respectivos dueños. Cruce no está afiliada a ellos ni cuenta con su respaldo. Las cifras de mercado citan su fuente; los nombres y montos de los ejemplos son ilustrativos.</p>
+      <p>© 2026 Cruce. Todos los derechos reservados.</p>
+    </div>
   </div>
 </footer>
 
